@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Portal;
 
+use App\Models\Holiday;
 use App\Models\Leave;
 use App\Models\LeaveType;
 use Livewire\Component;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use App\Services\NotificationService;
 
 class EmployeeLeaveApply extends Component
@@ -27,9 +29,28 @@ class EmployeeLeaveApply extends Component
             $from = Carbon::parse($this->from_date);
             $to   = Carbon::parse($this->to_date);
             if ($to->greaterThanOrEqualTo($from)) {
-                $this->days = $from->diffInDays($to) + 1;
+                $this->days = $this->countWorkingDays($from, $to);
             }
         }
+    }
+
+    private function countWorkingDays(Carbon $from, Carbon $to): int
+    {
+        $holidays = Holiday::whereBetween('date', [
+                $from->toDateString(),
+                $to->toDateString(),
+            ])
+            ->pluck('date')
+            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+            ->toArray();
+
+        $days = 0;
+        foreach (CarbonPeriod::create($from, $to) as $date) {
+            if (!$date->isWeekend() && !in_array($date->format('Y-m-d'), $holidays)) {
+                $days++;
+            }
+        }
+        return $days;
     }
 
     public function save(): void
@@ -43,6 +64,22 @@ class EmployeeLeaveApply extends Component
 
         $employee = auth()->user()->employee;
 
+        // Enforce leave balance
+        $leaveType = LeaveType::find($this->leave_type_id);
+        if ($leaveType && $leaveType->days_allowed > 0) {
+            $usedDays = Leave::where('employee_id', $employee->id)
+                ->where('leave_type_id', $this->leave_type_id)
+                ->whereIn('status', ['approved', 'pending'])
+                ->whereYear('from_date', Carbon::parse($this->from_date)->year)
+                ->sum('days');
+
+            $available = $leaveType->days_allowed - $usedDays;
+            if ($this->days > $available) {
+                $this->addError('days', "Exceeds your available balance for {$leaveType->name}. Available: {$available} working day(s).");
+                return;
+            }
+        }
+
         Leave::create([
             'employee_id'   => $employee->id,
             'leave_type_id' => $this->leave_type_id,
@@ -53,13 +90,12 @@ class EmployeeLeaveApply extends Component
             'status'        => 'pending',
         ]);
 
-        // Notify admins of new leave request
-NotificationService::notifyAdmins(
-    title: 'New Leave Request 📋',
-    message: "{$employee->full_name} applied for {$this->days} day(s) leave.",
-    type: 'info',
-    url: '/leave',
-);
+        NotificationService::notifyAdmins(
+            title: 'New Leave Request',
+            message: "{$employee->full_name} applied for {$this->days} day(s) leave.",
+            type: 'info',
+            url: '/leave',
+        );
 
         $this->leave_type_id = null;
         $this->from_date     = '';

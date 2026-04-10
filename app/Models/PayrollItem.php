@@ -25,4 +25,3 @@ class PayrollItem extends Model
         return $this->belongsTo(Payroll::class);
     }
 }
-

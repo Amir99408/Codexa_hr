@@ -13,7 +13,7 @@ use Carbon\Carbon;
 
 class PdfController extends Controller
 {
-    // Payslip PDF
+    // Payslip PDF — scoped by route model binding; admin middleware already applied
     public function payslip(Payroll $payroll)
     {
         $payroll->load(['employee.department', 'items']);
@@ -27,10 +27,17 @@ class PdfController extends Controller
     // Attendance Report PDF
     public function attendanceReport(Request $request)
     {
-        $from_date    = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
-        $to_date      = $request->get('to_date', now()->format('Y-m-d'));
-        $filterDept   = $request->get('dept', '');
-        $filterStatus = $request->get('status', '');
+        $validated = $request->validate([
+            'from_date' => 'nullable|date',
+            'to_date'   => 'nullable|date|after_or_equal:from_date',
+            'dept'      => 'nullable|integer|exists:departments,id',
+            'status'    => 'nullable|in:present,absent,late,half_day,work_from_home',
+        ]);
+
+        $from_date    = $validated['from_date'] ?? now()->startOfMonth()->format('Y-m-d');
+        $to_date      = $validated['to_date']   ?? now()->format('Y-m-d');
+        $filterDept   = $validated['dept']      ?? '';
+        $filterStatus = $validated['status']    ?? '';
 
         $records = Attendance::query()
             ->with(['employee.department'])
@@ -64,9 +71,15 @@ class PdfController extends Controller
     // Leave Report PDF
     public function leaveReport(Request $request)
     {
-        $from_date    = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
-        $to_date      = $request->get('to_date', now()->endOfMonth()->format('Y-m-d'));
-        $filterStatus = $request->get('status', '');
+        $validated = $request->validate([
+            'from_date' => 'nullable|date',
+            'to_date'   => 'nullable|date|after_or_equal:from_date',
+            'status'    => 'nullable|in:pending,approved,rejected',
+        ]);
+
+        $from_date    = $validated['from_date'] ?? now()->startOfMonth()->format('Y-m-d');
+        $to_date      = $validated['to_date']   ?? now()->endOfMonth()->format('Y-m-d');
+        $filterStatus = $validated['status']    ?? '';
 
         $records = Leave::query()
             ->with(['employee.department', 'leaveType'])
@@ -94,8 +107,13 @@ class PdfController extends Controller
     // Payroll Report PDF
     public function payrollReport(Request $request)
     {
-        $month = $request->get('month', now()->month);
-        $year  = $request->get('year', now()->year);
+        $validated = $request->validate([
+            'month' => 'nullable|integer|min:1|max:12',
+            'year'  => 'nullable|integer|min:2000|max:2100',
+        ]);
+
+        $month = $validated['month'] ?? now()->month;
+        $year  = $validated['year']  ?? now()->year;
 
         $records = Payroll::query()
             ->with(['employee.department'])

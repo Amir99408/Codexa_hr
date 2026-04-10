@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Payroll;
 
+use App\Models\Advance;
 use App\Models\Payroll;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Services\PayrollCalculatorService;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Services\AuditService;
@@ -34,20 +36,33 @@ class PayrollIndex extends Component
         $employees = Employee::where('status', 'active')->get();
         $service   = new PayrollCalculatorService();
 
-        foreach ($employees as $employee) {
-            $result = $service->calculate($employee, $this->selectedMonth, $this->selectedYear);
-            // Assuming calculate returns Payroll model or array with payroll info
-            $payroll = Payroll::where('employee_id', $employee->id)
-                ->where('month', $this->selectedMonth)
-                ->where('year', $this->selectedYear)
-                ->latest('id')->first();
-            AuditService::log(
-                action: 'created',
-                model: 'Payroll',
-                description: "Ran payroll for {$employee->full_name} — Net: ".($result['net'] ?? ($payroll->net_salary ?? 'N/A')),
-                modelId: $payroll?->id,
-            );
-        }
+        DB::transaction(function () use ($employees, $service) {
+            foreach ($employees as $employee) {
+                $payroll = $service->calculate($employee, $this->selectedMonth, $this->selectedYear);
+
+                AuditService::log(
+                    action: 'created',
+                    model: 'Payroll',
+                    description: "Ran payroll for {$employee->full_name} — Net: {$payroll->net_salary}",
+                    modelId: $payroll->id,
+                );
+
+                // Update advance balance using the Payroll model's saved fields
+                if ($payroll->advance_id && $payroll->advance_deduction > 0) {
+                    $advance = Advance::find($payroll->advance_id);
+                    if ($advance && $advance->status === 'active') {
+                        $advance->paid_amount      = round((float) $advance->paid_amount + (float) $payroll->advance_deduction, 2);
+                        $advance->remaining_amount = round((float) $advance->remaining_amount - (float) $payroll->advance_deduction, 2);
+
+                        if ($advance->remaining_amount <= 0) {
+                            $advance->remaining_amount = 0;
+                            $advance->status           = 'completed';
+                        }
+                        $advance->save();
+                    }
+                }
+            }
+        });
 
         $this->message = 'Payroll processed for ' . $employees->count() . ' employees.';
     }
@@ -58,21 +73,20 @@ class PayrollIndex extends Component
         $payroll = Payroll::findOrFail($id);
         $payroll->update(['status' => 'paid']);
 
+        $payrolls = Payroll::where('month', $this->selectedMonth)
+            ->where('year', $this->selectedYear)
+            ->with('employee')
+            ->get();
 
-        $payrolls = \App\Models\Payroll::where('month', $this->selectedMonth)
-    ->where('year', $this->selectedYear)
-    ->with('employee')
-    ->get();
-
-foreach ($payrolls as $p) {
-    NotificationService::notifyEmployee(
-        employeeId: $p->employee_id,
-        title: 'Salary Credited 💰',
-        message: "Your salary of " . number_format($p->net_salary) . " for {$p->month_name} has been paid.",
-        type: 'success',
-        url: '/portal/payslips',
-    );
-}
+        foreach ($payrolls as $p) {
+            NotificationService::notifyEmployee(
+                employeeId: $p->employee_id,
+                title: 'Salary Credited',
+                message: "Your salary of " . number_format($p->net_salary) . " for {$p->month_name} has been paid.",
+                type: 'success',
+                url: '/portal/payslips',
+            );
+        }
 
         AuditService::log(
             action: 'paid',
@@ -99,10 +113,11 @@ foreach ($payrolls as $p) {
 
     public function render()
     {
+        // Filter by payroll month/year columns, not created_at
         $payrolls = Payroll::query()
             ->with(['employee.department'])
-            ->whereMonth('created_at', $this->selectedMonth)
-            ->whereYear('created_at',  $this->selectedYear)
+            ->where('month', $this->selectedMonth)
+            ->where('year',  $this->selectedYear)
             ->when($this->search, fn($q) =>
                 $q->whereHas('employee', fn($eq) =>
                     $eq->where('first_name', 'like', '%'.$this->search.'%')

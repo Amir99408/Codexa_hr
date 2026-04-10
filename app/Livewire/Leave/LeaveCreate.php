@@ -2,11 +2,13 @@
 
 namespace App\Livewire\Leave;
 
+use App\Models\Holiday;
 use App\Models\Leave;
 use App\Models\LeaveType;
 use App\Models\Employee;
 use Livewire\Component;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 class LeaveCreate extends Component
 {
@@ -33,9 +35,28 @@ class LeaveCreate extends Component
             $from = Carbon::parse($this->from_date);
             $to   = Carbon::parse($this->to_date);
             if ($to->greaterThanOrEqualTo($from)) {
-                $this->days = $from->diffInDays($to) + 1;
+                $this->days = $this->countWorkingDays($from, $to);
             }
         }
+    }
+
+    private function countWorkingDays(Carbon $from, Carbon $to): int
+    {
+        $holidays = Holiday::whereBetween('date', [
+                $from->toDateString(),
+                $to->toDateString(),
+            ])
+            ->pluck('date')
+            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+            ->toArray();
+
+        $days = 0;
+        foreach (CarbonPeriod::create($from, $to) as $date) {
+            if (!$date->isWeekend() && !in_array($date->format('Y-m-d'), $holidays)) {
+                $days++;
+            }
+        }
+        return $days;
     }
 
     protected function rules(): array
@@ -52,6 +73,22 @@ class LeaveCreate extends Component
     public function save(): void
     {
         $this->validate();
+
+        // Enforce leave balance
+        $leaveType = LeaveType::find($this->leave_type_id);
+        if ($leaveType && $leaveType->days_allowed > 0) {
+            $usedDays = Leave::where('employee_id', $this->employee_id)
+                ->where('leave_type_id', $this->leave_type_id)
+                ->whereIn('status', ['approved', 'pending'])
+                ->whereYear('from_date', Carbon::parse($this->from_date)->year)
+                ->sum('days');
+
+            $available = $leaveType->days_allowed - $usedDays;
+            if ($this->days > $available) {
+                $this->addError('days', "Exceeds allowed balance for {$leaveType->name}. Available: {$available} working day(s).");
+                return;
+            }
+        }
 
         Leave::create([
             'employee_id'   => $this->employee_id,

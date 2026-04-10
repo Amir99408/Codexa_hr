@@ -5,6 +5,7 @@ namespace App\Livewire\Attendance;
 use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\Department;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Carbon\Carbon;
@@ -63,18 +64,21 @@ class AttendanceIndex extends Component
             ? Employee::where('id', $this->markEmployeeId)->where('status', 'active')->get()
             : Employee::where('status', 'active')->get();
 
-        foreach ($employees as $employee) {
-            Attendance::updateOrCreate(
-                ['employee_id' => $employee->id, 'date' => Carbon::parse($this->markDate)->format('Y-m-d')],
-                [
-                    'status'    => $this->markStatus,
-                    'check_in'  => in_array($this->markStatus, ['present', 'late', 'half_day', 'work_from_home'])
-                                    ? $this->markCheckIn : null,
-                    'check_out' => in_array($this->markStatus, ['present', 'late', 'half_day', 'work_from_home'])
-                                    ? $this->markCheckOut : null,
-                ]
-            );
-        }
+        $date        = Carbon::parse($this->markDate)->format('Y-m-d');
+        $hasCheckInfo = in_array($this->markStatus, ['present', 'late', 'half_day', 'work_from_home']);
+
+        DB::transaction(function () use ($employees, $date, $hasCheckInfo) {
+            foreach ($employees as $employee) {
+                Attendance::updateOrCreate(
+                    ['employee_id' => $employee->id, 'date' => $date],
+                    [
+                        'status'    => $this->markStatus,
+                        'check_in'  => $hasCheckInfo ? $this->markCheckIn  : null,
+                        'check_out' => $hasCheckInfo ? $this->markCheckOut : null,
+                    ]
+                );
+            }
+        });
 
         $this->showMarkModal  = false;
         $this->message        = 'Attendance marked successfully.';
@@ -128,4 +132,3 @@ class AttendanceIndex extends Component
         ])->layout('layouts.app', ['title' => 'Attendance']);
     }
 }
-

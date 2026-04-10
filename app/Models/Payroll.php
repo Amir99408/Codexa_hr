@@ -21,16 +21,21 @@ class Payroll extends Model
         'working_days',
         'present_days',
         'absent_days',
+        'advance_deduction',
+        'advance_id',
         'status',
         'note',
     ];
 
     protected $casts = [
-        'basic_salary'     => 'decimal:2',
-        'total_earnings'   => 'decimal:2',
-        'total_deductions' => 'decimal:2',
-        'gross_salary'     => 'decimal:2',
-        'net_salary'       => 'decimal:2',
+        'basic_salary'      => 'decimal:2',
+        'total_earnings'    => 'decimal:2',
+        'total_deductions'  => 'decimal:2',
+        'gross_salary'      => 'decimal:2',
+        'net_salary'        => 'decimal:2',
+        'advance_deduction' => 'decimal:2',
+        'present_days'      => 'decimal:1',
+        'absent_days'       => 'decimal:1',
     ];
 
     public function employee()

@@ -200,4 +200,3 @@ return [
         'store' => 'default',
     ],
 ];
-

@@ -96,4 +96,3 @@ class LeaveTypes extends Component
         ])->layout('layouts.app', ['title' => 'Leave Types']);
     }
 }
-

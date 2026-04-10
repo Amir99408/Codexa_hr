@@ -41,7 +41,13 @@ class PayrollComponents extends Component
             'name'             => 'required|string|max:100',
             'type'             => 'required|in:earning,deduction',
             'calculation_type' => 'required|in:flat,percentage',
-            'value'            => 'required|numeric|min:0',
+            'value'            => [
+                'required',
+                'numeric',
+                'min:0',
+                // Cap percentage-based components at 100 % to prevent invalid salary inflation
+                $this->calculation_type === 'percentage' ? 'max:100' : 'max:9999999',
+            ],
         ]);
 
         if ($this->editId) {

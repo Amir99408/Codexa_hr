@@ -134,4 +134,3 @@ class HolidayIndex extends Component
         ])->layout('layouts.app', ['title' => 'Holidays']);
     }
 }
-

@@ -42,6 +42,11 @@ use App\Livewire\Shifts\ShiftIndex;
 use App\Livewire\Shifts\ShiftRoster;
 use App\Livewire\Portal\EmployeeShifts;
 use App\Http\Controllers\LanguageController;
+use App\Livewire\Advances\AdvanceIndex;
+use App\Livewire\Portal\EmployeeAdvance;
+use App\Livewire\WarningLetters\WarningLetterIndex;
+use App\Livewire\WarningLetters\WarningLetterCreate;
+use App\Livewire\Portal\EmployeeWarnings;
 
 // -----------------------------------------------
 // ADMIN ROUTES
@@ -52,10 +57,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
         $stats = [
             'total_employees'       => Employee::where('status', 'active')->count(),
             'present_today'         => Attendance::whereDate('date', today())
-                                            ->whereIn('status', ['present', 'late', 'work_from_home'])->count(),
+                ->whereIn('status', ['present', 'late', 'work_from_home'])->count(),
             'on_leave_today'        => Leave::where('status', 'approved')
-                                            ->whereDate('from_date', '<=', today())
-                                            ->whereDate('to_date', '>=', today())->count(),
+                ->whereDate('from_date', '<=', today())
+                ->whereDate('to_date', '>=', today())->count(),
             'pending_leaves'        => Leave::where('status', 'pending')->count(),
             'total_employees_count' => Employee::count(),
         ];
@@ -64,7 +69,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
         $totalDepartments = Department::count();
 
         return view('dashboard', compact(
-            'stats', 'recentEmployees', 'payrollThisMonth', 'totalDepartments'
+            'stats',
+            'recentEmployees',
+            'payrollThisMonth',
+            'totalDepartments'
         ));
     })->name('dashboard');
 
@@ -103,32 +111,36 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
     // PDF Exports
-Route::get('/pdf/payslip/{payroll}', [PdfController::class, 'payslip'])->name('pdf.payslip');
-Route::get('/pdf/attendance-report', [PdfController::class, 'attendanceReport'])->name('pdf.attendance');
-Route::get('/pdf/leave-report',      [PdfController::class, 'leaveReport'])->name('pdf.leave');
-Route::get('/pdf/payroll-report',    [PdfController::class, 'payrollReport'])->name('pdf.payroll');
+    Route::get('/pdf/payslip/{payroll}', [PdfController::class, 'payslip'])->name('pdf.payslip');
+    Route::get('/pdf/attendance-report', [PdfController::class, 'attendanceReport'])->name('pdf.attendance');
+    Route::get('/pdf/leave-report',      [PdfController::class, 'leaveReport'])->name('pdf.leave');
+    Route::get('/pdf/payroll-report',    [PdfController::class, 'payrollReport'])->name('pdf.payroll');
 
-Route::get('/audit-log', AuditLogIndex::class)->name('audit.index');
+    Route::get('/audit-log', AuditLogIndex::class)->name('audit.index');
 
-Route::get('/notifications', NotificationIndex::class)->name('notifications.index');
+    Route::get('/notifications', NotificationIndex::class)->name('notifications.index');
 
-// Recruitment
-Route::get('/recruitment',                  JobIndex::class)->name('recruitment.jobs');
-Route::get('/recruitment/create',           JobCreate::class)->name('recruitment.jobs.create');
-Route::get('/recruitment/{job}/edit',       JobCreate::class)->name('recruitment.jobs.edit');
-Route::get('/recruitment/{job}/applicants', ApplicantIndex::class)->name('recruitment.applicants');
+    // Recruitment
+    Route::get('/recruitment',                  JobIndex::class)->name('recruitment.jobs');
+    Route::get('/recruitment/create',           JobCreate::class)->name('recruitment.jobs.create');
+    Route::get('/recruitment/{job}/edit',       JobCreate::class)->name('recruitment.jobs.edit');
+    Route::get('/recruitment/{job}/applicants', ApplicantIndex::class)->name('recruitment.applicants');
 
-// Performance Reviews
-Route::get('/performance',              PerformanceIndex::class)->name('performance.index');
-Route::get('/performance/create',       PerformanceCreate::class)->name('performance.create');
-Route::get('/performance/{review}/edit', PerformanceCreate::class)->name('performance.edit');
-// Expense Claims
-Route::get('/expenses', ExpenseIndex::class)->name('expenses.index');
+    // Performance Reviews
+    Route::get('/performance',              PerformanceIndex::class)->name('performance.index');
+    Route::get('/performance/create',       PerformanceCreate::class)->name('performance.create');
+    Route::get('/performance/{review}/edit', PerformanceCreate::class)->name('performance.edit');
+    // Expense Claims
+    Route::get('/expenses', ExpenseIndex::class)->name('expenses.index');
 
-// Shifts
-Route::get('/shifts',        ShiftIndex::class)->name('shifts.index');
-Route::get('/shifts/roster', ShiftRoster::class)->name('shifts.roster');
-
+    // Shifts
+    Route::get('/shifts',        ShiftIndex::class)->name('shifts.index');
+    Route::get('/shifts/roster', ShiftRoster::class)->name('shifts.roster');
+    Route::get('/advances', AdvanceIndex::class)->name('advances.index');
+    // Warning Letters
+Route::get('/warnings',                    WarningLetterIndex::class)->name('warnings.index');
+Route::get('/warnings/create',             WarningLetterCreate::class)->name('warnings.create');
+Route::get('/warnings/{warningLetter}/edit', WarningLetterCreate::class)->name('warnings.edit');
 });
 
 // -----------------------------------------------
@@ -143,8 +155,8 @@ Route::middleware(['auth', 'employee'])->prefix('portal')->group(function () {
     Route::get('/notifications', NotificationIndex::class)->name('employee.notifications');
     Route::get('/expenses', EmployeeExpenses::class)->name('employee.expenses');
     Route::get('/shifts', EmployeeShifts::class)->name('employee.shifts');
-
-
+    Route::get('/advance', EmployeeAdvance::class)->name('employee.advance');
+    Route::get('/warnings', EmployeeWarnings::class)->name('employee.warnings');
 });
 
 // -----------------------------------------------
@@ -164,4 +176,4 @@ Route::get('/', function () {
 Route::get('/language/{locale}', [LanguageController::class, 'switch'])
     ->middleware('auth')
     ->name('language.switch');
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

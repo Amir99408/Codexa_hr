@@ -22,8 +22,11 @@ class EmployeePayslips extends Component
                 ->get()
             : collect();
 
-        $viewing = $this->viewingId
-            ? Payroll::with(['items', 'employee.department'])->find($this->viewingId)
+        // Scope to the authenticated employee to prevent IDOR
+        $viewing = ($this->viewingId && $employee)
+            ? Payroll::with(['items', 'employee.department'])
+                ->where('employee_id', $employee->id)
+                ->find($this->viewingId)
             : null;
 
         return view('livewire.portal.employee-payslips', [

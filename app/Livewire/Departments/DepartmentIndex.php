@@ -115,4 +115,3 @@ class DepartmentIndex extends Component
         ])->layout('layouts.app', ['title' => 'Departments']);
     }
 }
-
