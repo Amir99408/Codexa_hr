@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
         $table->string('name');
         $table->string('code')->nullable();
-        $table->foreignId('manager_id')->nullable()->constrained('employees')->nullOnDelete();
+        $table->unsignedBigInteger('manager_id')->nullable(); // FK added after employees table in separate migration
         $table->timestamps();
         });
     }
