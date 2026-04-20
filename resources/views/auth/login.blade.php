@@ -4,7 +4,8 @@
         * { font-family: 'Plus Jakarta Sans', sans-serif; }
 
         .login-bg {
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
             background-color: #f8fafc;
             background-image:
                 radial-gradient(at 20% 10%, rgba(15,76,129,0.08) 0px, transparent 50%),
@@ -13,7 +14,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1.25rem;
+            padding: 0.75rem 1.25rem;
         }
 
         @keyframes scaleUp  { from{opacity:0;transform:scale(0.96) translateY(8px)} to{opacity:1;transform:scale(1) translateY(0)} }
@@ -57,7 +58,7 @@
             font-size: 0.6875rem;
             font-weight: 800;
             color: #374151;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.35rem;
             text-transform: uppercase;
             letter-spacing: 0.06em;
         }
@@ -77,24 +78,24 @@
         <div class="w-full max-w-md">
 
             {{-- ── Brand ──────────────────────────────────────── --}}
-            <div class="text-center mb-8 slide-down">
-                <div class="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-blue-900/20"
+            <div class="text-center mb-5 slide-down">
+                <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-lg shadow-blue-900/20"
                      style="background:linear-gradient(135deg,#0f4c81,#1a6eb5);">
-                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                 </div>
-                <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Welcome back</h1>
-                <p class="text-sm text-gray-400 font-medium mt-1">Sign in to your HR dashboard</p>
+                <h1 class="text-xl font-extrabold text-gray-900 tracking-tight">Welcome back</h1>
+                <p class="text-xs text-gray-400 font-medium mt-0.5">Sign in to your HR dashboard</p>
             </div>
 
             {{-- ── Card ───────────────────────────────────────── --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden scale-up">
 
                 {{-- Top stripe --}}
-                <div class="h-1.5 w-full" style="background:linear-gradient(90deg,#0f4c81,#1a6eb5,#38bdf8)"></div>
+                <div class="h-1 w-full" style="background:linear-gradient(90deg,#0f4c81,#1a6eb5,#38bdf8)"></div>
 
-                <div class="p-7">
+                <div class="p-5">
 
                     {{-- Session Status --}}
                     @if(session('status'))
@@ -108,7 +109,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                    <form method="POST" action="{{ route('login') }}" class="space-y-4">
                         @csrf
 
                         {{-- Email --}}
@@ -183,7 +184,7 @@
 
                         {{-- Submit --}}
                         <button type="submit"
-                                class="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white shadow-lg shadow-blue-900/20 hover:shadow-blue-900/30 hover:-translate-y-0.5 transition-all duration-200"
+                                class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg shadow-blue-900/20 hover:shadow-blue-900/30 hover:-translate-y-0.5 transition-all duration-200"
                                 style="background:linear-gradient(135deg,#0f4c81,#1a6eb5);">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
@@ -196,7 +197,7 @@
             </div>
 
             {{-- ── Footer note ─────────────────────────────────── --}}
-            <p class="text-center text-[11px] text-gray-400 font-medium mt-6">
+            <p class="text-center text-[11px] text-gray-400 font-medium mt-3">
                 HR Management System &copy; {{ date('Y') }}
             </p>
 
