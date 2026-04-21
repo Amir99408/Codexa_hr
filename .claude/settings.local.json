@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
+<<<<<<< Updated upstream
       "Bash(php artisan *)"
+=======
+      "PowerShell(php artisan tinker --execute=\"echo App\\\\Models\\\\User::count\\(\\); echo ' | '; echo App\\\\Models\\\\User::first\\(\\)->email ?? 'none';\")"
+>>>>>>> Stashed changes
     ]
   }
 }
