@@ -503,17 +503,14 @@
 
                             </div>
                             <div class="flex items-center gap-5 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                <div
+                                <div id="photo-preview-create"
                                     class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0f4c81] to-blue-400 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 overflow-hidden">
-                                    @if ($photo)
-                                        <img src="{{ $photo->temporaryUrl() }}" class="w-full h-full object-cover" />
-                                    @else
-                                        {{ strtoupper(substr($first_name ?: 'E', 0, 1)) }}
-                                    @endif
+                                    {{ strtoupper(substr($first_name ?: 'E', 0, 1)) }}
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
                                     <input wire:model="photo" type="file" accept="image/*"
+                                        onchange="previewPhoto(this, 'photo-preview-create')"
                                         class="text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0
                                          file:bg-[#0f4c81] file:text-white file:text-xs file:font-medium
                                          file:cursor-pointer hover:file:bg-blue-800" />

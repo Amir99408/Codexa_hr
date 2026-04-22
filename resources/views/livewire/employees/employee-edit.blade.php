@@ -20,14 +20,8 @@
 
             {{-- Image Upload --}}
             <div class="flex items-center gap-4">
-                <div class="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200">
-                    @if($photo)
-                        <img src="{{ $photo->temporaryUrl() }}" alt="Preview" class="object-cover w-full h-full">
-                        <button type="button" wire:click="$set('photo', null)"
-                                class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                            &times;
-                        </button>
-                    @elseif($employee->photo)
+                <div id="photo-preview-edit" class="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200">
+                    @if($employee->photo)
                         <img src="{{ asset('storage/'.$employee->photo) }}" alt="Employee Photo" class="object-cover w-full h-full">
                         <button type="button" wire:click="removePhoto"
                                 class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
@@ -42,6 +36,7 @@
                 <div class="flex-1">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Upload Photo</label>
                     <input type="file" wire:model="photo" accept="image/*"
+                           onchange="previewPhoto(this, 'photo-preview-edit')"
                            class="w-full text-sm text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0f4c81] focus:border-transparent"/>
                     @error('photo') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     <p class="text-xs text-gray-400 mt-1">JPG, JPEG, PNG | Max 2MB</p>

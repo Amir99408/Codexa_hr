@@ -87,5 +87,16 @@
     </script>
 
     @livewireScripts
+<script>
+function previewPhoto(input, containerId) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover">';
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+</script>
 </body>
 </html>
