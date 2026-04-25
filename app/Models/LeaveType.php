@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\ClearsCaches;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LeaveType extends Model
 {
-    use HasFactory;
+    use HasFactory, ClearsCaches;
+
+    protected static array $cacheKeys = ['leave_types_all'];
 
     protected $fillable = [
         'name',

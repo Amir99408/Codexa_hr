@@ -6,6 +6,8 @@ use App\Models\ExpenseClaim;
 use App\Services\NotificationService;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class ExpenseIndex extends Component
 {
@@ -26,19 +28,23 @@ class ExpenseIndex extends Component
     public function approve(int $id): void
     {
         $claim = ExpenseClaim::with('employee')->findOrFail($id);
-        $claim->update([
-            'status'      => 'approved',
-            'approved_by' => auth()->id(),
-            'approved_at' => now(),
-        ]);
+        Gate::authorize('update', $claim);
 
-        NotificationService::notifyEmployee(
-            employeeId: $claim->employee_id,
-            title: 'Expense Approved ✅',
-            message: "Your expense claim \"{$claim->title}\" of " . currency($claim->amount) . " has been approved.",
-            type: 'success',
-            url: '/portal/expenses',
-        );
+        DB::transaction(function () use ($claim) {
+            $claim->update([
+                'status'      => 'approved',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+            ]);
+
+            NotificationService::notifyEmployee(
+                employeeId: $claim->employee_id,
+                title: 'Expense Approved ✅',
+                message: "Your expense claim \"{$claim->title}\" of " . currency($claim->amount) . " has been approved.",
+                type: 'success',
+                url: '/portal/expenses',
+            );
+        });
 
         $this->message = 'Expense claim approved.';
     }
@@ -57,19 +63,23 @@ class ExpenseIndex extends Component
         ]);
 
         $claim = ExpenseClaim::with('employee')->findOrFail($this->rejectId);
-        $claim->update([
-            'status'           => 'rejected',
-            'approved_by'      => auth()->id(),
-            'rejection_reason' => $this->rejection_reason,
-        ]);
+        Gate::authorize('update', $claim);
 
-        NotificationService::notifyEmployee(
-            employeeId: $claim->employee_id,
-            title: 'Expense Rejected ❌',
-            message: "Your expense claim \"{$claim->title}\" has been rejected.",
-            type: 'danger',
-            url: '/portal/expenses',
-        );
+        DB::transaction(function () use ($claim) {
+            $claim->update([
+                'status'           => 'rejected',
+                'approved_by'      => auth()->id(),
+                'rejection_reason' => $this->rejection_reason,
+            ]);
+
+            NotificationService::notifyEmployee(
+                employeeId: $claim->employee_id,
+                title: 'Expense Rejected ❌',
+                message: "Your expense claim \"{$claim->title}\" has been rejected.",
+                type: 'danger',
+                url: '/portal/expenses',
+            );
+        });
 
         $this->reset(['showRejectModal', 'rejectId', 'rejection_reason']);
         $this->message = 'Expense claim rejected.';
@@ -78,18 +88,22 @@ class ExpenseIndex extends Component
     public function markReimbursed(int $id): void
     {
         $claim = ExpenseClaim::with('employee')->findOrFail($id);
-        $claim->update([
-            'status'        => 'reimbursed',
-            'reimbursed_at' => now(),
-        ]);
+        Gate::authorize('update', $claim);
 
-        NotificationService::notifyEmployee(
-            employeeId: $claim->employee_id,
-            title: 'Expense Reimbursed 💰',
-            message: "Your expense claim \"{$claim->title}\" of " . currency($claim->amount) . " has been reimbursed.",
-            type: 'success',
-            url: '/portal/expenses',
-        );
+        DB::transaction(function () use ($claim) {
+            $claim->update([
+                'status'        => 'reimbursed',
+                'reimbursed_at' => now(),
+            ]);
+
+            NotificationService::notifyEmployee(
+                employeeId: $claim->employee_id,
+                title: 'Expense Reimbursed 💰',
+                message: "Your expense claim \"{$claim->title}\" of " . currency($claim->amount) . " has been reimbursed.",
+                type: 'success',
+                url: '/portal/expenses',
+            );
+        });
 
         $this->message = 'Marked as reimbursed.';
     }

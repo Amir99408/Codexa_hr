@@ -7,6 +7,8 @@ use App\Models\Employee;
 use App\Services\NotificationService;
 use App\Services\AuditService;
 use Livewire\Component;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WarningLetterIssuedMail;
 
 class WarningLetterCreate extends Component
 {
@@ -213,6 +215,11 @@ HR Department
                 description: "Issued warning letter to employee ID {$this->employee_id}: {$this->subject}",
                 modelId: $letter->id,
             );
+
+            $employee = Employee::with('user')->find($this->employee_id);
+            if ($employee?->user?->email) {
+                Mail::to($employee->user->email)->queue(new WarningLetterIssuedMail($letter));
+            }
         }
 
         session()->flash('success', 'Warning letter saved successfully.');

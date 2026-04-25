@@ -6,6 +6,7 @@ use App\Models\ExpenseClaim;
 use App\Services\NotificationService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Gate;
 
 class EmployeeExpenses extends Component
 {
@@ -27,6 +28,8 @@ class EmployeeExpenses extends Component
 
     public function save(): void
     {
+        Gate::authorize('create', ExpenseClaim::class);
+
         $this->validate([
             'title'        => 'required|string|max:200',
             'category'     => 'required|string',
@@ -37,6 +40,7 @@ class EmployeeExpenses extends Component
         ]);
 
         $employee = auth()->user()->employee;
+        abort_unless($employee, 403);
 
         $receiptPath = null;
         if ($this->receipt) {

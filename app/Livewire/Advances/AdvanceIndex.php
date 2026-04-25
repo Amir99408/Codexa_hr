@@ -7,6 +7,8 @@ use App\Models\Employee;
 use App\Services\NotificationService;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class AdvanceIndex extends Component
 {
@@ -91,18 +93,22 @@ class AdvanceIndex extends Component
     public function approve(int $id): void
     {
         $advance = Advance::with('employee')->findOrFail($id);
-        $advance->update([
-            'status'      => 'active',
-            'approved_by' => auth()->id(),
-        ]);
+        Gate::authorize('update', $advance);
 
-        NotificationService::notifyEmployee(
-            employeeId: $advance->employee_id,
-            title: 'Advance Approved ✅',
-            message: "Your advance request of " . currency($advance->total_amount) . " has been approved.",
-            type: 'success',
-            url: '/portal/advance',
-        );
+        DB::transaction(function () use ($advance) {
+            $advance->update([
+                'status'      => 'active',
+                'approved_by' => auth()->id(),
+            ]);
+
+            NotificationService::notifyEmployee(
+                employeeId: $advance->employee_id,
+                title: 'Advance Approved ✅',
+                message: "Your advance request of " . currency($advance->total_amount) . " has been approved.",
+                type: 'success',
+                url: '/portal/advance',
+            );
+        });
 
         $this->message = 'Advance approved!';
     }
@@ -121,30 +127,40 @@ class AdvanceIndex extends Component
         ]);
 
         $advance = Advance::with('employee')->findOrFail($this->rejectId);
-        $advance->update([
-            'status'           => 'rejected',
-            'rejection_reason' => $this->rejection_reason,
-        ]);
+        Gate::authorize('update', $advance);
 
-        NotificationService::notifyEmployee(
-            employeeId: $advance->employee_id,
-            title: 'Advance Rejected ❌',
-            message: "Your advance request has been rejected.",
-            type: 'danger',
-            url: '/portal/advance',
-        );
+        DB::transaction(function () use ($advance) {
+            $advance->update([
+                'status'           => 'rejected',
+                'rejection_reason' => $this->rejection_reason,
+            ]);
 
-        $this->reset(['showRejectModal','rejectId','rejection_reason']);
+            NotificationService::notifyEmployee(
+                employeeId: $advance->employee_id,
+                title: 'Advance Rejected ❌',
+                message: "Your advance request has been rejected.",
+                type: 'danger',
+                url: '/portal/advance',
+            );
+        });
+
+        $this->reset(['showRejectModal', 'rejectId', 'rejection_reason']);
         $this->message = 'Advance rejected.';
     }
 
     public function markCompleted(int $id): void
     {
-        Advance::findOrFail($id)->update([
-            'status'           => 'completed',
-            'remaining_amount' => 0,
-            'paid_amount'      => Advance::find($id)->total_amount,
-        ]);
+        $advance = Advance::findOrFail($id);
+        Gate::authorize('update', $advance);
+
+        DB::transaction(function () use ($advance) {
+            $advance->update([
+                'status'           => 'completed',
+                'remaining_amount' => 0,
+                'paid_amount'      => $advance->total_amount,
+            ]);
+        });
+
         $this->message = 'Advance marked as completed.';
     }
 

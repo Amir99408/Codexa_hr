@@ -4,11 +4,13 @@ namespace App\Livewire\Portal;
 
 use App\Models\Holiday;
 use App\Models\Leave;
+use App\Models\LeaveCarryForward;
 use App\Models\LeaveType;
 use Livewire\Component;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\Gate;
 
 class EmployeeLeaveApply extends Component
 {
@@ -55,6 +57,8 @@ class EmployeeLeaveApply extends Component
 
     public function save(): void
     {
+        Gate::authorize('create', Leave::class);
+
         $this->validate([
             'leave_type_id' => 'required|exists:leave_types,id',
             'from_date'     => 'required|date|after_or_equal:today',
@@ -63,17 +67,25 @@ class EmployeeLeaveApply extends Component
         ]);
 
         $employee = auth()->user()->employee;
+        abort_unless($employee, 403);
 
         // Enforce leave balance
         $leaveType = LeaveType::find($this->leave_type_id);
         if ($leaveType && $leaveType->days_allowed > 0) {
+            $requestYear = Carbon::parse($this->from_date)->year;
+
             $usedDays = Leave::where('employee_id', $employee->id)
                 ->where('leave_type_id', $this->leave_type_id)
                 ->whereIn('status', ['approved', 'pending'])
-                ->whereYear('from_date', Carbon::parse($this->from_date)->year)
+                ->whereYear('from_date', $requestYear)
                 ->sum('days');
 
-            $available = $leaveType->days_allowed - $usedDays;
+            $carriedForward = LeaveCarryForward::where('employee_id', $employee->id)
+                ->where('leave_type_id', $this->leave_type_id)
+                ->where('year', $requestYear)
+                ->value('days') ?? 0;
+
+            $available = $leaveType->days_allowed + $carriedForward - $usedDays;
             if ($this->days > $available) {
                 $this->addError('days', "Exceeds your available balance for {$leaveType->name}. Available: {$available} working day(s).");
                 return;
@@ -109,7 +121,7 @@ class EmployeeLeaveApply extends Component
     public function render()
     {
         $employee   = auth()->user()->employee;
-        $leaveTypes = LeaveType::all();
+        $leaveTypes = \Illuminate\Support\Facades\Cache::remember('leave_types_all', 600, fn() => LeaveType::all());
         $myLeaves   = Leave::where('employee_id', $employee?->id)
             ->with('leaveType')
             ->latest()

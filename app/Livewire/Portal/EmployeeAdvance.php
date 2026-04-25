@@ -5,6 +5,7 @@ namespace App\Livewire\Portal;
 use App\Models\Advance;
 use App\Services\NotificationService;
 use Livewire\Component;
+use Illuminate\Support\Facades\Gate;
 
 class EmployeeAdvance extends Component
 {
@@ -17,6 +18,8 @@ class EmployeeAdvance extends Component
 
     public function save(): void
     {
+        Gate::authorize('create', Advance::class);
+
         $rules = [
             'total_amount'   => 'required|numeric|min:1',
             'repayment_type' => 'required|in:full,installment',
@@ -30,6 +33,7 @@ class EmployeeAdvance extends Component
         $this->validate($rules);
 
         $employee = auth()->user()->employee;
+        abort_unless($employee, 403);
 
         // Check no active/pending advance
         $existing = Advance::where('employee_id', $employee->id)

@@ -24,12 +24,15 @@ class Employee extends Model
         'status',
         'address',
         'photo',
+        'onboarding_status',
+        'probation_end_date',
     ];
 
     protected $casts = [
-        'date_of_birth' => 'date',
-        'join_date'     => 'date',
-        'basic_salary'  => 'decimal:2',
+        'date_of_birth'      => 'date',
+        'join_date'          => 'date',
+        'basic_salary'       => 'decimal:2',
+        'probation_end_date' => 'date',
     ];
 
     // Full name helper
@@ -62,5 +65,15 @@ public function getPhotoUrlAttribute(): ?string
     return $this->photo
         ? asset('storage/' . $this->photo)
         : null;
+}
+
+public function onboardingTasks()
+{
+    return $this->hasMany(OnboardingTask::class);
+}
+
+public function documents()
+{
+    return $this->hasMany(EmployeeDocument::class);
 }
 }

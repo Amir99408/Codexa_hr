@@ -4,10 +4,18 @@ namespace App\Livewire\Portal;
 
 use App\Models\Payroll;
 use Livewire\Component;
+use Illuminate\Support\Facades\Gate;
 
 class EmployeePayslips extends Component
 {
     public ?int $viewingId = null;
+
+    public function view(int $id): void
+    {
+        $payroll = Payroll::findOrFail($id);
+        Gate::authorize('view', $payroll);
+        $this->viewingId = $id;
+    }
 
     public function render()
     {

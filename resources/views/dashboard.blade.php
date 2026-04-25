@@ -351,6 +351,59 @@
             </div>
         </div>
 
+        {{-- ── Charts ────────────────────────────────────────────────────── --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+
+            {{-- Attendance Rate Trend --}}
+            <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 text-sm">Attendance Rate</h3>
+                        <p class="text-[11px] text-gray-400">Last 6 months (%)</p>
+                    </div>
+                </div>
+                <div id="chart-attendance" style="min-height:200px"></div>
+            </div>
+
+            {{-- Department Headcount --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 text-sm">Headcount by Department</h3>
+                        <p class="text-[11px] text-gray-400">Active employees</p>
+                    </div>
+                </div>
+                <div id="chart-dept" style="min-height:200px"></div>
+            </div>
+
+        </div>
+
+        {{-- Payroll Cost Trend --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-[#0f4c81]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-900 text-sm">Payroll Cost</h3>
+                    <p class="text-[11px] text-gray-400">Net salary paid — last 6 months</p>
+                </div>
+            </div>
+            <div id="chart-payroll" style="min-height:200px"></div>
+        </div>
+
         {{-- ── Quick Actions ─────────────────────────────────────────────── --}}
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div class="flex items-center gap-3 mb-5">
@@ -431,4 +484,58 @@
         </div>
 
     </div>
+
+    {{-- ApexCharts --}}
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.49.0/dist/apexcharts.min.js"></script>
+    <script>
+        const months      = @json($chartMonths);
+        const attendance  = @json($chartAttendance);
+        const payroll     = @json($chartPayroll);
+        const deptLabels  = @json($deptLabels);
+        const deptCounts  = @json($deptCounts);
+
+        // Attendance Rate
+        new ApexCharts(document.getElementById('chart-attendance'), {
+            chart: { type: 'area', height: 200, toolbar: { show: false }, sparkline: { enabled: false } },
+            series: [{ name: 'Attendance %', data: attendance }],
+            xaxis: { categories: months, labels: { style: { fontSize: '11px', colors: '#9ca3af' } } },
+            yaxis: { max: 100, labels: { formatter: v => v + '%', style: { fontSize: '11px', colors: '#9ca3af' } } },
+            colors: ['#059669'],
+            fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.02 } },
+            stroke: { curve: 'smooth', width: 2 },
+            dataLabels: { enabled: false },
+            grid: { borderColor: '#f3f4f6' },
+            tooltip: { y: { formatter: v => v + '%' } },
+        }).render();
+
+        // Payroll Cost
+        new ApexCharts(document.getElementById('chart-payroll'), {
+            chart: { type: 'bar', height: 200, toolbar: { show: false } },
+            series: [{ name: 'Net Payroll', data: payroll }],
+            xaxis: { categories: months, labels: { style: { fontSize: '11px', colors: '#9ca3af' } } },
+            yaxis: { labels: { formatter: v => v.toLocaleString(), style: { fontSize: '11px', colors: '#9ca3af' } } },
+            colors: ['#0f4c81'],
+            plotOptions: { bar: { borderRadius: 6, columnWidth: '50%' } },
+            dataLabels: { enabled: false },
+            grid: { borderColor: '#f3f4f6' },
+            tooltip: { y: { formatter: v => v.toLocaleString() } },
+        }).render();
+
+        // Department Headcount
+        if (deptLabels.length > 0) {
+            new ApexCharts(document.getElementById('chart-dept'), {
+                chart: { type: 'donut', height: 200, toolbar: { show: false } },
+                series: deptCounts,
+                labels: deptLabels,
+                colors: ['#0f4c81','#059669','#7c3aed','#ff6b35','#f59e0b','#06b6d4'],
+                legend: { position: 'bottom', fontSize: '11px' },
+                dataLabels: { enabled: false },
+                plotOptions: { pie: { donut: { size: '65%' } } },
+                tooltip: { y: { formatter: v => v + ' employees' } },
+            }).render();
+        } else {
+            document.getElementById('chart-dept').innerHTML =
+                '<p style="text-align:center;color:#9ca3af;padding:60px 0;font-size:13px;">No departments yet</p>';
+        }
+    </script>
 </x-app-layout>

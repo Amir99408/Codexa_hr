@@ -33,6 +33,15 @@ class EmployeeIndex extends Component
         session()->flash('success', 'Employee deleted successfully.');
     }
 
+    public function export(): void
+    {
+        $this->redirect(route('export.employees', [
+            'search' => $this->search,
+            'dept'   => $this->filterDept,
+            'status' => $this->filterStatus,
+        ]));
+    }
+
     public function render()
     {
         $employees = Employee::query()

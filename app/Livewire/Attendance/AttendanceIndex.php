@@ -84,6 +84,15 @@ class AttendanceIndex extends Component
         $this->message        = 'Attendance marked successfully.';
     }
 
+    public function export(): void
+    {
+        $this->redirect(route('export.attendance', [
+            'date'   => $this->filterDate,
+            'dept'   => $this->filterDept,
+            'status' => $this->filterStatus,
+        ]));
+    }
+
     // Delete attendance record
     public function deleteAttendance(int $id): void
     {
@@ -116,7 +125,7 @@ class AttendanceIndex extends Component
             ->latest('date')
             ->paginate(15);
 
-        $departments   = Department::all();
+        $departments   = \Illuminate\Support\Facades\Cache::remember('departments_all', 600, fn() => Department::all());
         $todayTotal    = Employee::where('status', 'active')->count();
         $todayPresent  = Attendance::whereDate('date', today())->where('status', 'present')->count();
         $todayAbsent   = Attendance::whereDate('date', today())->where('status', 'absent')->count();

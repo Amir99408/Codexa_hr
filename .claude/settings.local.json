@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "PowerShell(php artisan about 2>&1)",
+      "PowerShell(php artisan queue:table 2>&1)",
+      "PowerShell(php artisan migrate 2>&1)"
     ]
   }
 }

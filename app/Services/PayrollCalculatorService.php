@@ -11,6 +11,7 @@ use App\Models\Advance;
 use App\Models\Holiday;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\Cache;
 
 class PayrollCalculatorService
 {
@@ -20,13 +21,15 @@ class PayrollCalculatorService
         $lastOfMonth  = $firstOfMonth->copy()->endOfMonth();
 
         // --- Working days: exclude weekends and public holidays ---
-        $holidayDates = Holiday::whereBetween('date', [
-                $firstOfMonth->toDateString(),
-                $lastOfMonth->toDateString(),
-            ])
-            ->pluck('date')
-            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
-            ->toArray();
+        $holidayDates = Cache::remember("holidays_{$year}_{$month}", 3600, fn() =>
+            Holiday::whereBetween('date', [
+                    $firstOfMonth->toDateString(),
+                    $lastOfMonth->toDateString(),
+                ])
+                ->pluck('date')
+                ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+                ->toArray()
+        );
 
         $workingDays = 0;
         foreach (CarbonPeriod::create($firstOfMonth, $lastOfMonth) as $date) {
@@ -51,6 +54,12 @@ class PayrollCalculatorService
         $presentDays = $fullDays + ($halfDays * 0.5);
         $absentDays  = max(0, $workingDays - $presentDays);
 
+        // --- Overtime hours for the month ---
+        $totalOvertimeHours = (float) Attendance::where('employee_id', $employee->id)
+            ->whereMonth('date', $month)
+            ->whereYear('date',  $year)
+            ->sum('overtime_hours');
+
         $basicSalary = (float) $employee->basic_salary;
 
         // --- Prorate basic salary based on actual attendance ---
@@ -67,7 +76,9 @@ class PayrollCalculatorService
         $advanceDeduction = $advance ? (float) $advance->monthly_deduction : 0.0;
 
         // --- Salary components (earnings & deductions) ---
-        $components      = SalaryComponent::where('is_active', true)->get();
+        $components = Cache::remember('salary_components_active', 600, fn() =>
+            SalaryComponent::where('is_active', true)->get()
+        );
         $earnings        = [];
         $deductions      = [];
         $totalEarnings   = 0.0;
@@ -92,6 +103,17 @@ class PayrollCalculatorService
                 $deductions[]     = ['name' => $component->name, 'amount' => $amount];
                 $totalDeductions += $amount;
             }
+        }
+
+        // --- Overtime pay: hourly rate × 1.5 × OT hours ---
+        $otPay = 0.0;
+        if ($totalOvertimeHours > 0 && $workingDays > 0) {
+            $dailyRate  = $basicSalary / $workingDays;
+            $hourlyRate = $dailyRate / 8;
+            $otPay      = round($hourlyRate * 1.5 * $totalOvertimeHours, 2);
+
+            $earnings[]     = ['name' => 'Overtime Pay', 'amount' => $otPay];
+            $totalEarnings += $otPay;
         }
 
         $totalEarnings   = round($totalEarnings,   2);

@@ -7,11 +7,14 @@ use App\Models\Payroll;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Services\PayrollCalculatorService;
+use App\Jobs\ProcessPayrollJob;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Services\AuditService;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PayslipPaidMail;
 
 class PayrollIndex extends Component
 {
@@ -30,62 +33,34 @@ class PayrollIndex extends Component
         $this->selectedYear  = now()->year;
     }
 
-    // Run payroll for all employees
+    // Run payroll for all employees (dispatched as background jobs)
     public function runPayroll(): void
     {
         $employees = Employee::where('status', 'active')->get();
-        $service   = new PayrollCalculatorService();
 
-        DB::transaction(function () use ($employees, $service) {
-            foreach ($employees as $employee) {
-                $payroll = $service->calculate($employee, $this->selectedMonth, $this->selectedYear);
+        foreach ($employees as $employee) {
+            ProcessPayrollJob::dispatch($employee->id, $this->selectedMonth, $this->selectedYear);
+        }
 
-                AuditService::log(
-                    action: 'created',
-                    model: 'Payroll',
-                    description: "Ran payroll for {$employee->full_name} — Net: {$payroll->net_salary}",
-                    modelId: $payroll->id,
-                );
-
-                // Update advance balance using the Payroll model's saved fields
-                if ($payroll->advance_id && $payroll->advance_deduction > 0) {
-                    $advance = Advance::find($payroll->advance_id);
-                    if ($advance && $advance->status === 'active') {
-                        $advance->paid_amount      = round((float) $advance->paid_amount + (float) $payroll->advance_deduction, 2);
-                        $advance->remaining_amount = round((float) $advance->remaining_amount - (float) $payroll->advance_deduction, 2);
-
-                        if ($advance->remaining_amount <= 0) {
-                            $advance->remaining_amount = 0;
-                            $advance->status           = 'completed';
-                        }
-                        $advance->save();
-                    }
-                }
-            }
-        });
-
-        $this->message = 'Payroll processed for ' . $employees->count() . ' employees.';
+        $this->message = "Payroll queued for {$employees->count()} employee(s). Results will appear shortly.";
     }
 
     // Mark as paid
     public function markPaid(int $id): void
     {
-        $payroll = Payroll::findOrFail($id);
+        $payroll = Payroll::with(['employee.user', 'items'])->findOrFail($id);
         $payroll->update(['status' => 'paid']);
 
-        $payrolls = Payroll::where('month', $this->selectedMonth)
-            ->where('year', $this->selectedYear)
-            ->with('employee')
-            ->get();
+        NotificationService::notifyEmployee(
+            employeeId: $payroll->employee_id,
+            title: 'Salary Credited',
+            message: "Your salary of " . number_format($payroll->net_salary) . " for {$payroll->month_name} has been paid.",
+            type: 'success',
+            url: '/portal/payslips',
+        );
 
-        foreach ($payrolls as $p) {
-            NotificationService::notifyEmployee(
-                employeeId: $p->employee_id,
-                title: 'Salary Credited',
-                message: "Your salary of " . number_format($p->net_salary) . " for {$p->month_name} has been paid.",
-                type: 'success',
-                url: '/portal/payslips',
-            );
+        if ($payroll->employee?->user?->email) {
+            Mail::to($payroll->employee->user->email)->queue(new PayslipPaidMail($payroll));
         }
 
         AuditService::log(
@@ -102,6 +77,16 @@ class PayrollIndex extends Component
     {
         Payroll::findOrFail($id)->update(['status' => 'processed']);
         $this->message = 'Payroll marked as processed.';
+    }
+
+    public function export(): void
+    {
+        $this->redirect(route('export.payroll', [
+            'month'  => $this->selectedMonth,
+            'year'   => $this->selectedYear,
+            'dept'   => $this->filterDept,
+            'status' => $this->filterStatus,
+        ]));
     }
 
     // Delete payroll
@@ -135,7 +120,7 @@ class PayrollIndex extends Component
             ->latest()
             ->paginate(15);
 
-        $departments  = Department::all();
+        $departments  = \Illuminate\Support\Facades\Cache::remember('departments_all', 600, fn() => Department::all());
         $totalNet     = Payroll::where('month', $this->selectedMonth)
                             ->where('year', $this->selectedYear)
                             ->sum('net_salary');

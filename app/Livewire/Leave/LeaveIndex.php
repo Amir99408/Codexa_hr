@@ -9,6 +9,10 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Services\AuditService;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\LeaveStatusMail;
 
 class LeaveIndex extends Component
 {
@@ -30,33 +34,40 @@ class LeaveIndex extends Component
     public function approve(int $id): void
     {
         $leave = Leave::findOrFail($id);
-        $leave->update([
-            'status'      => 'approved',
-            'approved_by' => auth()->id(),
-        ]);
+        Gate::authorize('update', $leave);
 
-// Notify employee
-NotificationService::notifyEmployee(
-    employeeId: $leave->employee_id,
-    title: 'Leave Approved ✅',
-    message: "Your {$leave->leaveType->name} request for {$leave->days} day(s) has been approved.",
-    type: 'success',
-    url: '/portal/leave/apply',
-);
+        DB::transaction(function () use ($leave) {
+            $leave->update([
+                'status'      => 'approved',
+                'approved_by' => auth()->id(),
+            ]);
 
-// Notify admins
-NotificationService::notifyAdmins(
-    title: 'Leave Approved',
-    message: "{$leave->employee->full_name}'s leave has been approved.",
-    type: 'success',
-);
+            NotificationService::notifyEmployee(
+                employeeId: $leave->employee_id,
+                title: 'Leave Approved ✅',
+                message: "Your {$leave->leaveType->name} request for {$leave->days} day(s) has been approved.",
+                type: 'success',
+                url: '/portal/leave/apply',
+            );
 
-        AuditService::log(
-    action: 'approved',
-    model: 'Leave',
-    description: "Approved leave for {$leave->employee->full_name} ({$leave->days} days)",
-    modelId: $leave->id,
-);
+            NotificationService::notifyAdmins(
+                title: 'Leave Approved',
+                message: "{$leave->employee->full_name}'s leave has been approved.",
+                type: 'success',
+            );
+
+            AuditService::log(
+                action: 'approved',
+                model: 'Leave',
+                description: "Approved leave for {$leave->employee->full_name} ({$leave->days} days)",
+                modelId: $leave->id,
+            );
+
+            if ($leave->employee?->user?->email) {
+                Mail::to($leave->employee->user->email)->queue(new LeaveStatusMail($leave));
+            }
+        });
+
         $this->message = 'Leave approved successfully.';
     }
 
@@ -75,26 +86,34 @@ NotificationService::notifyAdmins(
         ]);
 
         $leave = Leave::findOrFail($this->rejectId);
-        $leave->update([
-            'status'           => 'rejected',
-            'approved_by'      => auth()->id(),
-            'rejection_reason' => $this->rejectionReason,
-        ]);
+        Gate::authorize('update', $leave);
 
-NotificationService::notifyEmployee(
-    employeeId: $leave->employee_id,
-    title: 'Leave Rejected ❌',
-    message: "Your {$leave->leaveType->name} request has been rejected.",
-    type: 'danger',
-    url: '/portal/leave/apply',
-);
+        DB::transaction(function () use ($leave) {
+            $leave->update([
+                'status'           => 'rejected',
+                'approved_by'      => auth()->id(),
+                'rejection_reason' => $this->rejectionReason,
+            ]);
 
-        AuditService::log(
-            action: 'rejected',
-            model: 'Leave',
-            description: "Rejected leave for {$leave->employee->full_name}",
-            modelId: $leave->id,
-        );
+            NotificationService::notifyEmployee(
+                employeeId: $leave->employee_id,
+                title: 'Leave Rejected ❌',
+                message: "Your {$leave->leaveType->name} request has been rejected.",
+                type: 'danger',
+                url: '/portal/leave/apply',
+            );
+
+            AuditService::log(
+                action: 'rejected',
+                model: 'Leave',
+                description: "Rejected leave for {$leave->employee->full_name}",
+                modelId: $leave->id,
+            );
+
+            if ($leave->employee?->user?->email) {
+                Mail::to($leave->employee->user->email)->queue(new LeaveStatusMail($leave));
+            }
+        });
 
         $this->rejectId        = null;
         $this->rejectionReason = '';
@@ -104,7 +123,9 @@ NotificationService::notifyEmployee(
     // Delete leave
     public function delete(int $id): void
     {
-        Leave::findOrFail($id)->delete();
+        $leave = Leave::findOrFail($id);
+        Gate::authorize('delete', $leave);
+        $leave->delete();
         $this->message = 'Leave request deleted.';
     }
 
@@ -129,7 +150,7 @@ NotificationService::notifyEmployee(
             ->latest()
             ->paginate(15);
 
-        $departments  = Department::all();
+        $departments  = \Illuminate\Support\Facades\Cache::remember('departments_all', 600, fn() => Department::all());
         $pending      = Leave::where('status', 'pending')->count();
         $approved     = Leave::where('status', 'approved')->count();
         $rejected     = Leave::where('status', 'rejected')->count();

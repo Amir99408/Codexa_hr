@@ -208,6 +208,30 @@
                 @endif
             </a>
 
+            <a href="{{ route('onboarding.index') }}"
+               class="nav-item {{ request()->routeIs('onboarding.*') ? 'active' : '' }}">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+                Onboarding
+                @if(request()->routeIs('onboarding.*'))
+                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-white/60"></span>
+                @endif
+            </a>
+
+            <a href="{{ route('documents.index') }}"
+               class="nav-item {{ request()->routeIs('documents.*') ? 'active' : '' }}">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                Documents
+                @if(request()->routeIs('documents.*'))
+                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-white/60"></span>
+                @endif
+            </a>
+
             <a href="{{ route('performance.index') }}"
                class="nav-item {{ request()->routeIs('performance.*') ? 'active' : '' }}">
                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
