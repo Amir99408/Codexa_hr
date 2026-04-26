@@ -4,6 +4,7 @@ namespace App\Livewire\Employees;
 
 use App\Models\Employee;
 use App\Models\Department;
+use App\Models\User;
 use Livewire\Component;
 use App\Services\AuditService;
 use Livewire\WithFileUploads;
@@ -25,7 +26,12 @@ class EmployeeEdit extends Component
     public string  $status        = 'active';
     public ?int    $department_id = null;
     public        $photo          = null;
-    public string $device_id     = '';
+    public string $device_id      = '';
+
+    // Portal access
+    public bool   $create_account    = false;
+    public string $account_email     = '';
+    public string $account_password  = '';
 
     public function mount(Employee $employee): void
     {
@@ -42,11 +48,12 @@ class EmployeeEdit extends Component
         $this->status        = $employee->status;
         $this->department_id = $employee->department_id;
         $this->device_id     = $employee->device_id ?? '';
+        $this->account_email = $employee->user?->email ?? '';
     }
 
     protected function rules(): array
     {
-        return [
+        $rules = [
             'first_name'    => 'required|string|max:100',
             'last_name'     => 'required|string|max:100',
             'phone'         => 'nullable|string|max:20',
@@ -61,6 +68,18 @@ class EmployeeEdit extends Component
             'photo'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'device_id'     => 'nullable|string|max:50|unique:employees,device_id,' . $this->employee->id,
         ];
+
+        if ($this->employee->user_id) {
+            // Existing account: email must be unique ignoring this user
+            $rules['account_email']    = 'required|email|unique:users,email,' . $this->employee->user_id;
+            $rules['account_password'] = 'nullable|string|min:8';
+        } elseif ($this->create_account) {
+            // Creating new account
+            $rules['account_email']    = 'required|email|unique:users,email';
+            $rules['account_password'] = 'required|string|min:8';
+        }
+
+        return $rules;
     }
 
     public function removePhoto(): void
@@ -82,7 +101,6 @@ class EmployeeEdit extends Component
 
         // Handle photo upload
         if ($this->photo) {
-            // Delete old photo
             if ($this->employee->photo && \Storage::disk('public')->exists($this->employee->photo)) {
                 \Storage::disk('public')->delete($this->employee->photo);
             }
@@ -104,6 +122,30 @@ class EmployeeEdit extends Component
             'department_id' => $this->department_id,
             'device_id'     => $this->device_id ?: null,
         ]);
+
+        // Portal access: update existing user
+        if ($this->employee->user_id && $this->employee->user) {
+            $userUpdate = [
+                'name'  => $this->first_name . ' ' . $this->last_name,
+                'email' => $this->account_email,
+            ];
+            if ($this->account_password) {
+                $userUpdate['password'] = bcrypt($this->account_password);
+            }
+            $this->employee->user->update($userUpdate);
+        }
+
+        // Portal access: create new user account
+        if (!$this->employee->user_id && $this->create_account) {
+            $user = User::create([
+                'name'     => $this->first_name . ' ' . $this->last_name,
+                'email'    => $this->account_email,
+                'password' => bcrypt($this->account_password),
+                'photo'    => $this->employee->photo,
+            ]);
+            $user->assignRole('employee');
+            $this->employee->update(['user_id' => $user->id]);
+        }
 
         AuditService::log(
             action: 'updated',

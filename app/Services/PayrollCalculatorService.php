@@ -17,6 +17,16 @@ class PayrollCalculatorService
 {
     public function calculate(Employee $employee, int $month, int $year): Payroll
     {
+        // Never overwrite a paid payroll
+        $existing = Payroll::where('employee_id', $employee->id)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->first();
+
+        if ($existing && $existing->status === 'paid') {
+            return $existing;
+        }
+
         $firstOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $lastOfMonth  = $firstOfMonth->copy()->endOfMonth();
 
@@ -146,9 +156,13 @@ class PayrollCalculatorService
                 'absent_days'       => $absentDays,
                 'advance_deduction' => $advanceDeduction,
                 'advance_id'        => $advance?->id,
-                'status'            => 'draft',
             ]
         );
+
+        // New record: set to draft. Existing record: keep its current status
+        if ($payroll->wasRecentlyCreated) {
+            $payroll->update(['status' => 'draft']);
+        }
 
         // --- Rebuild line items ---
         $payroll->items()->delete();
