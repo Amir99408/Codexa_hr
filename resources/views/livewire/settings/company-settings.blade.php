@@ -329,40 +329,84 @@
                     </div>
                 </div>
 
-                {{-- ── Language ──────────────────────────────────── --}}
+                {{-- ── Attendance Device ────────────────────────── --}}
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="h-0.5 w-full" style="background:linear-gradient(90deg,#7c3aed,#a78bfa,#c4b5fd)"></div>
+                    <div class="h-0.5 w-full" style="background:linear-gradient(90deg,#10b981,#34d399,#6ee7b7)"></div>
                     <div class="p-6">
                         <div class="section-label">
-                            <div class="w-7 h-7 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
-                                <svg class="w-3.5 h-3.5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            <div class="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
                                 </svg>
                             </div>
-                            <span>Language</span>
+                            <span>Attendance Device (Biometric)</span>
                         </div>
 
-                        <div class="flex flex-wrap gap-2.5">
-                            <a href="{{ route('language.switch', 'en') }}"
-                               class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-150
-                                      {{ app()->getLocale() === 'en' ? 'text-white shadow-lg shadow-blue-900/20' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm' }}"
-                               @if(app()->getLocale() === 'en') style="background:linear-gradient(135deg,#0f4c81,#1a6eb5);" @endif>
-                                🇬🇧 English
-                            </a>
-                            <a href="{{ route('language.switch', 'ur') }}"
-                               class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-150
-                                      {{ app()->getLocale() === 'ur' ? 'text-white shadow-lg shadow-blue-900/20' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm' }}"
-                               @if(app()->getLocale() === 'ur') style="background:linear-gradient(135deg,#0f4c81,#1a6eb5);" @endif>
-                                🇵🇰 اردو
-                            </a>
-                            <a href="{{ route('language.switch', 'ar') }}"
-                               class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-150
-                                      {{ app()->getLocale() === 'ar' ? 'text-white shadow-lg shadow-blue-900/20' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm' }}"
-                               @if(app()->getLocale() === 'ar') style="background:linear-gradient(135deg,#0f4c81,#1a6eb5);" @endif>
-                                🇸🇦 عربي
+                        {{-- Toggle --}}
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl mb-4">
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Enable Biometric Device Sync</p>
+                                <p class="text-xs text-gray-500 mt-0.5">Allow ZKTeco or compatible devices to push attendance automatically</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input wire:model="device_enabled" type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+
+                        @if($device_enabled)
+                        <div class="space-y-3">
+                            {{-- Endpoint URL --}}
+                            <div>
+                                <label class="field-label">Device API Endpoint</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" readonly
+                                           value="{{ url('/api/attendance/device') }}"
+                                           class="form-input bg-gray-50 text-gray-500 cursor-default flex-1"/>
+                                    <button type="button"
+                                            onclick="navigator.clipboard.writeText('{{ url('/api/attendance/device') }}'); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy',1500)"
+                                            class="px-3 py-2 text-xs font-bold bg-gray-100 hover:bg-gray-200 rounded-xl transition whitespace-nowrap">
+                                        Copy
+                                    </button>
+                                </div>
+                                <p class="text-[11px] text-gray-400 mt-1">Enter this URL in your device's ADMS server setting</p>
+                            </div>
+
+                            {{-- Secret Key --}}
+                            <div>
+                                <label class="field-label">Secret Key</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" readonly
+                                           value="{{ $device_secret }}"
+                                           class="form-input bg-gray-50 text-gray-500 cursor-default font-mono text-xs flex-1"/>
+                                    <button type="button"
+                                            onclick="navigator.clipboard.writeText('{{ $device_secret }}'); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy',1500)"
+                                            class="px-3 py-2 text-xs font-bold bg-gray-100 hover:bg-gray-200 rounded-xl transition whitespace-nowrap">
+                                        Copy
+                                    </button>
+                                </div>
+                                <p class="text-[11px] text-gray-400 mt-1">Add this as <strong>X-Device-Secret</strong> header in your device or middleware software</p>
+                            </div>
+
+                            {{-- Setup Steps --}}
+                            <div class="bg-blue-50 rounded-xl p-4 text-xs text-blue-700 space-y-1.5">
+                                <p class="font-bold text-blue-800 mb-2">ZKTeco Setup Steps:</p>
+                                <p>1. On device → Menu → Communication → ADMS</p>
+                                <p>2. Set Server Address: <strong>{{ parse_url(url('/'), PHP_URL_HOST) }}</strong></p>
+                                <p>3. Set Server Port: <strong>443</strong></p>
+                                <p>4. Enable Push — device will sync automatically</p>
+                                <p class="mt-2">For middleware software (ZKBioSecurity etc.), use the API Endpoint + Secret Key above.</p>
+                            </div>
+
+                            <a href="{{ route('device.logs') }}"
+                               class="inline-flex items-center gap-2 text-xs font-semibold text-[#0f4c81] hover:underline">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                View Device Sync Logs →
                             </a>
                         </div>
-                        <p class="text-[11px] text-gray-400 font-medium mt-3">Page will reload when you switch language.</p>
+                        @endif
                     </div>
                 </div>
 

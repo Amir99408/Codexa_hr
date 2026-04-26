@@ -133,11 +133,23 @@
                 </div>
             </div>
 
-            {{-- Address --}}
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <textarea wire:model="address" rows="2"
-                          class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0f4c81] resize-none"></textarea>
+            {{-- Address / Device ID --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <textarea wire:model="address" rows="2"
+                              class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0f4c81] resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Device ID
+                        <span class="text-[10px] font-normal text-gray-400 ml-1">(biometric device user ID)</span>
+                    </label>
+                    <input wire:model="device_id" type="text" placeholder="e.g. 1, 2, 101"
+                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0f4c81] focus:border-transparent"/>
+                    @error('device_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    <p class="text-xs text-gray-400 mt-1">Leave blank if no device assigned</p>
+                </div>
             </div>
 
             {{-- Buttons --}}

@@ -16,9 +16,17 @@ class NotificationBell extends Component
 
     public function markRead(int $id): void
     {
-        Notification::where('id', $id)
+        $notification = Notification::where('id', $id)
             ->where('user_id', auth()->id())
-            ->update(['read_at' => now()]);
+            ->first();
+
+        if (!$notification) return;
+
+        $notification->update(['read_at' => now()]);
+
+        if ($notification->url) {
+            $this->redirect($notification->url);
+        }
     }
 
     public function markAllRead(): void

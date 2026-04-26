@@ -19,6 +19,8 @@ class CompanySettings extends Component
     public string $timezone        = '';
     public string $date_format     = '';
     public string $working_days    = '';
+    public bool   $device_enabled  = false;
+    public string $device_secret   = '';
     public string $message         = '';
 
     public function mount(): void
@@ -32,6 +34,8 @@ class CompanySettings extends Component
         $this->timezone        = Setting::get('timezone', 'Asia/Karachi');
         $this->date_format     = Setting::get('date_format', 'd M Y');
         $this->working_days    = Setting::get('working_days', '22');
+        $this->device_enabled  = (bool) Setting::get('device_enabled', false);
+        $this->device_secret   = Setting::get('device_secret') ?: \Illuminate\Support\Str::random(32);
     }
 
     public function save(): void
@@ -51,6 +55,8 @@ class CompanySettings extends Component
         Setting::set('timezone',        $this->timezone);
         Setting::set('date_format',     $this->date_format);
         Setting::set('working_days',    $this->working_days);
+        Setting::set('device_enabled',  $this->device_enabled ? '1' : '0');
+        Setting::set('device_secret',   $this->device_secret);
 
         $this->message = 'Company settings saved successfully.';
     }

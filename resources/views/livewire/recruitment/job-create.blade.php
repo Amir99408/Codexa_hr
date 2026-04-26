@@ -352,7 +352,7 @@
                                 <div>
                                     <label class="field-label">Salary Min <span class="text-gray-400 font-medium text-xs">(optional)</span></label>
                                     <div class="salary-wrap">
-                                        <span class="salary-badge">PKR</span>
+                                        <span class="salary-badge">{{ \App\Models\Setting::get('currency', 'PKR') }}</span>
                                         <input wire:model="salary_min" type="number"
                                                placeholder="30,000"
                                                class="field-input w-full"/>
@@ -361,7 +361,7 @@
                                 <div>
                                     <label class="field-label">Salary Max <span class="text-gray-400 font-medium text-xs">(optional)</span></label>
                                     <div class="salary-wrap">
-                                        <span class="salary-badge">PKR</span>
+                                        <span class="salary-badge">{{ \App\Models\Setting::get('currency', 'PKR') }}</span>
                                         <input wire:model="salary_max" type="number"
                                                placeholder="80,000"
                                                class="field-input w-full"/>

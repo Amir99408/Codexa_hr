@@ -5,9 +5,14 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\LeaveController;
 use App\Http\Controllers\Api\PayslipController;
+use App\Http\Controllers\DeviceAttendanceController;
 
 // Public
 Route::post('/login', [AuthController::class, 'login']);
+
+// Biometric device endpoints (no auth — secured by secret key)
+Route::post('/attendance/device', [DeviceAttendanceController::class, 'receive']);
+Route::any('/iclock/cdata',       [DeviceAttendanceController::class, 'zkteco']);
 
 // Authenticated (Sanctum token)
 Route::middleware('auth:sanctum')->group(function () {

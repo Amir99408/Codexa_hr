@@ -13,18 +13,19 @@ class EmployeeEdit extends Component
     use WithFileUploads;
     public Employee $employee;
 
-    public string $first_name    = '';
-    public string $last_name     = '';
-    public string $phone         = '';
-    public string $designation   = '';
-    public string $gender        = '';
-    public string $date_of_birth = '';
-    public string $join_date     = '';
-    public string $basic_salary  = '';
-    public string $address       = '';
-    public string $status        = 'active';
-    public ?int   $department_id = null;
-    public $photo = null;
+    public string  $first_name    = '';
+    public string  $last_name     = '';
+    public string  $phone         = '';
+    public string  $designation   = '';
+    public string  $gender        = '';
+    public ?string $date_of_birth = null;
+    public ?string $join_date     = null;
+    public        $basic_salary   = '';
+    public string  $address       = '';
+    public string  $status        = 'active';
+    public ?int    $department_id = null;
+    public        $photo          = null;
+    public string $device_id     = '';
 
     public function mount(Employee $employee): void
     {
@@ -34,12 +35,13 @@ class EmployeeEdit extends Component
         $this->phone         = $employee->phone ?? '';
         $this->designation   = $employee->designation ?? '';
         $this->gender        = $employee->gender ?? '';
-        $this->date_of_birth = $employee->date_of_birth?->format('Y-m-d') ?? '';
-        $this->join_date     = $employee->join_date->format('Y-m-d');
+        $this->date_of_birth = $employee->date_of_birth?->format('Y-m-d');
+        $this->join_date     = $employee->join_date?->format('Y-m-d');
         $this->basic_salary  = $employee->basic_salary;
         $this->address       = $employee->address ?? '';
         $this->status        = $employee->status;
         $this->department_id = $employee->department_id;
+        $this->device_id     = $employee->device_id ?? '';
     }
 
     protected function rules(): array
@@ -57,6 +59,7 @@ class EmployeeEdit extends Component
             'status'        => 'required|in:active,inactive,terminated',
             'department_id' => 'nullable|exists:departments,id',
             'photo'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'device_id'     => 'nullable|string|max:50|unique:employees,device_id,' . $this->employee->id,
         ];
     }
 
@@ -99,6 +102,7 @@ class EmployeeEdit extends Component
             'address'       => $this->address,
             'status'        => $this->status,
             'department_id' => $this->department_id,
+            'device_id'     => $this->device_id ?: null,
         ]);
 
         AuditService::log(

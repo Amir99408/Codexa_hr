@@ -171,10 +171,10 @@
 
                     <div>
                         <label class="text-xs font-semibold text-gray-600 mb-1 block">File (PDF, JPG, PNG, DOC — max 10MB)</label>
-                        <input wire:model="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                        <input wire:model="document" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                                class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
-                        @error('file') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                        <div wire:loading wire:target="file" class="text-xs text-blue-500 mt-1">Uploading...</div>
+                        @error('document') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                        <div wire:loading wire:target="document" class="text-xs text-blue-500 mt-1">Uploading...</div>
                     </div>
                 </div>
 

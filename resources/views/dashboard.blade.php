@@ -55,7 +55,7 @@
         .emp-avatar-amber  { background: linear-gradient(135deg, #d97706 0%, #fbbf24 100%); }
     </style>
 
-    <div class="mesh-bg min-h-screen p-5 lg:p-8">
+    <div class="mesh-bg min-h-screen">
 
         {{-- ── Header ───────────────────────────────────────────────────── --}}
         <div class="flex items-center justify-between mb-8">

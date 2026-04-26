@@ -13,22 +13,23 @@ class EmployeeCreate extends Component
 {
     use WithFileUploads;
 
-    public string $emp_code         = '';
-    public bool   $create_account   = false;
-    public string $account_email    = '';
-    public string $account_password = '';
-    public string $first_name       = '';
-    public string $last_name        = '';
-    public string $phone            = '';
-    public string $designation      = '';
-    public string $gender           = '';
-    public string $date_of_birth    = '';
-    public string $join_date        = '';
-    public string $basic_salary     = '';
-    public string $address          = '';
-    public string $status           = 'active';
-    public ?int   $department_id    = null;
-    public $photo = null;
+    public string  $emp_code         = '';
+    public string  $device_id        = '';
+    public bool    $create_account   = false;
+    public string  $account_email    = '';
+    public string  $account_password = '';
+    public string  $first_name       = '';
+    public string  $last_name        = '';
+    public string  $phone            = '';
+    public string  $designation      = '';
+    public string  $gender           = '';
+    public ?string $date_of_birth    = null;
+    public ?string $join_date        = null;
+    public         $basic_salary     = '';
+    public string  $address          = '';
+    public string  $status           = 'active';
+    public ?int    $department_id    = null;
+    public         $photo            = null;
 
     public function mount(): void
     {
@@ -58,6 +59,7 @@ class EmployeeCreate extends Component
             'status'        => 'required|in:active,inactive,terminated',
             'address'       => 'nullable|string',
             'photo'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'device_id'     => 'nullable|string|max:50|unique:employees,device_id',
         ];
 
         if ($this->create_account) {
@@ -88,6 +90,7 @@ class EmployeeCreate extends Component
         $employee = Employee::create([
             'user_id'       => $userId,
             'emp_code'      => $this->emp_code,
+            'device_id'     => $this->device_id ?: null,
             'first_name'    => $this->first_name,
             'last_name'     => $this->last_name,
             'department_id' => $this->department_id,

@@ -58,7 +58,12 @@
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-gray-800 leading-snug">{{ $notif->title }}</p>
                         <p class="text-xs text-gray-500 mt-0.5 leading-snug">{{ $notif->message }}</p>
-                        <p class="text-xs text-gray-400 mt-1">{{ $notif->created_at->diffForHumans() }}</p>
+                        <div class="flex items-center justify-between mt-1">
+                            <p class="text-xs text-gray-400">{{ $notif->created_at->diffForHumans() }}</p>
+                            @if($notif->url)
+                                <span class="text-[10px] text-[#0f4c81] font-medium">View →</span>
+                            @endif
+                        </div>
                     </div>
 
                     {{-- Unread dot --}}

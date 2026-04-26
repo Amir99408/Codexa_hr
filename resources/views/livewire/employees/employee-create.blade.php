@@ -650,26 +650,51 @@
                                 </div>
                             </div>
 
-                            {{-- Basic Salary --}}
-                            <div>
-                                <label class="field-label">
-                                    Basic Salary <span class="text-red-500">*</span>
-                                </label>
-                                <div class="salary-wrap">
-                                    <span class="salary-badge">PKR</span>
-                                    <input wire:model="basic_salary" type="number" placeholder="50,000"
-                                        class="field-input w-full" style="padding-left:3.75rem;" />
+                            {{-- Basic Salary / Device ID --}}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="field-label">
+                                        Basic Salary <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="salary-wrap">
+                                        <span class="salary-badge">{{ \App\Models\Setting::get('currency', 'PKR') }}</span>
+                                        <input wire:model="basic_salary" type="number" placeholder="50,000"
+                                            class="field-input w-full" style="padding-left:3.75rem;" />
+                                    </div>
+                                    @error('basic_salary')
+                                        <p class="flex items-center gap-1 text-red-500 text-[11px] mt-1.5 font-medium">
+                                            <svg class="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
                                 </div>
-                                @error('basic_salary')
-                                    <p class="flex items-center gap-1 text-red-500 text-[11px] mt-1.5 font-medium">
-                                        <svg class="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                clip-rule="evenodd" />
+                                <div>
+                                    <label class="field-label">Device ID
+                                        <span class="text-[10px] font-normal text-gray-400 ml-1">(biometric device user ID)</span>
+                                    </label>
+                                    <div class="input-icon-wrap">
+                                        <svg class="input-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
                                         </svg>
-                                        {{ $message }}
-                                    </p>
-                                @enderror
+                                        <input wire:model="device_id" type="text" placeholder="e.g. 1, 2, 101"
+                                            class="field-input" />
+                                    </div>
+                                    @error('device_id')
+                                        <p class="flex items-center gap-1 text-red-500 text-[11px] mt-1.5 font-medium">
+                                            <svg class="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
                     </div>

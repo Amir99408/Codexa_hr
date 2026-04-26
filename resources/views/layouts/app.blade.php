@@ -47,7 +47,7 @@
             <x-top-bar :title="$title ?? 'Dashboard'" />
 
             {{-- ── Page content ─────────────────────────────── --}}
-            <main class="flex-1 overflow-y-auto">
+            <main class="flex-1 overflow-y-auto p-5 lg:p-8">
                 {{ $slot }}
             </main>
 

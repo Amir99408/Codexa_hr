@@ -23,14 +23,14 @@ class DocumentIndex extends Component
     public string  $title    = '';
     public string  $docCategory = 'general';
     public ?string $expiryDate  = null;
-    public         $file = null;
+    public         $document = null;
 
     public function updatingSearch(): void { $this->resetPage(); }
 
     public function openUpload(int $employeeId): void
     {
         $this->uploadEmployeeId = $employeeId;
-        $this->reset(['title', 'docCategory', 'expiryDate', 'file']);
+        $this->reset(['title', 'docCategory', 'expiryDate', 'document']);
         $this->docCategory   = 'general';
         $this->showUploadModal = true;
     }
@@ -41,11 +41,11 @@ class DocumentIndex extends Component
             'title'       => 'required|string|max:150',
             'docCategory' => 'required|in:id,contract,certificate,general',
             'expiryDate'  => 'nullable|date',
-            'file'        => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
+            'document'    => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
         ]);
 
-        $path     = $this->file->store("documents/{$this->uploadEmployeeId}", 'local');
-        $fileName = $this->file->getClientOriginalName();
+        $path     = $this->document->store("documents/{$this->uploadEmployeeId}", 'public');
+        $fileName = $this->document->getClientOriginalName();
 
         EmployeeDocument::create([
             'employee_id' => $this->uploadEmployeeId,
@@ -56,7 +56,7 @@ class DocumentIndex extends Component
             'expiry_date' => $this->expiryDate ?: null,
         ]);
 
-        $this->reset(['showUploadModal', 'uploadEmployeeId', 'title', 'docCategory', 'expiryDate', 'file']);
+        $this->reset(['showUploadModal', 'uploadEmployeeId', 'title', 'docCategory', 'expiryDate', 'document']);
         $this->message = 'Document uploaded successfully.';
     }
 
@@ -69,7 +69,7 @@ class DocumentIndex extends Component
     public function delete(int $docId): void
     {
         $doc = EmployeeDocument::findOrFail($docId);
-        Storage::disk('local')->delete($doc->file_path);
+        Storage::disk('public')->delete($doc->file_path);
         $doc->delete();
         $this->message = 'Document deleted.';
     }
@@ -77,7 +77,7 @@ class DocumentIndex extends Component
     public function download(int $docId)
     {
         $doc = EmployeeDocument::findOrFail($docId);
-        return Storage::disk('local')->download($doc->file_path, $doc->file_name);
+        return Storage::disk('public')->download($doc->file_path, $doc->file_name);
     }
 
     public function render()

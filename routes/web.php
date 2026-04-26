@@ -45,9 +45,12 @@ use App\Livewire\Portal\EmployeeShifts;
 use App\Http\Controllers\LanguageController;
 use App\Livewire\Advances\AdvanceIndex;
 use App\Livewire\Portal\EmployeeAdvance;
+use App\Livewire\Attendance\DeviceLogs;
 use App\Livewire\WarningLetters\WarningLetterIndex;
 use App\Livewire\WarningLetters\WarningLetterCreate;
 use App\Livewire\Portal\EmployeeWarnings;
+use App\Livewire\Careers\CareersIndex;
+use App\Livewire\Careers\CareerApply;
 use App\Livewire\RoleManagement\RoleIndex;
 use App\Livewire\Onboarding\OnboardingIndex;
 use App\Livewire\Documents\DocumentIndex;
@@ -130,6 +133,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Attendance
     Route::get('/attendance', AttendanceIndex::class)->name('attendance.index');
+    Route::get('/attendance/device-logs', DeviceLogs::class)->name('device.logs');
 
     // Holidays
     Route::get('/holidays', HolidayIndex::class)->name('holidays.index');
@@ -226,6 +230,12 @@ Route::middleware(['auth', 'employee'])->prefix('portal')->group(function () {
 // -----------------------------------------------
 
 use Illuminate\Support\Facades\Auth;
+
+// -----------------------------------------------
+// PUBLIC CAREERS ROUTES
+// -----------------------------------------------
+Route::get('/careers', CareersIndex::class)->name('careers.index');
+Route::get('/careers/{job}', CareerApply::class)->name('careers.apply');
 
 Route::get('/', function () {
     if (Auth::check()) {
