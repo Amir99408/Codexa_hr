@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\SetAppSettings::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\CheckLicense::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

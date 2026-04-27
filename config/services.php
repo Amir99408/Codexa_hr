@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'devstaq' => [
+        'url' => env('DEVSTAQ_LICENSE_URL'),
+        'key' => env('DEVSTAQ_LICENSE_KEY'),
+    ],
+
 ];
