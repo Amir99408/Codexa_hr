@@ -238,6 +238,21 @@
     <div class="mesh-bg min-h-screen p-5 lg:p-8">
         <div class="max-w-5xl mx-auto">
 
+            {{-- ── Applicant conversion banner ───────────────────── --}}
+            @if($applicant_id)
+                <div class="mb-6 flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-2xl slide-up">
+                    <div class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-[#0f4c81]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-[#0f4c81]">Converting applicant to employee</p>
+                        <p class="text-xs text-blue-500 mt-0.5">Fields have been pre-filled from the application. Set the salary and create a login if needed.</p>
+                    </div>
+                </div>
+            @endif
+
             {{-- ── Page Header ───────────────────────────────────────── --}}
             <div class="flex items-center gap-4 mb-8 slide-up">
                 <a href="{{ route('employees.index') }}"

@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Employees;
 
+use App\Models\Applicant;
 use App\Models\Employee;
 use App\Models\Department;
+use App\Models\OnboardingTask;
 use App\Models\User;
 use Livewire\Component;
 use App\Services\AuditService;
@@ -30,11 +32,29 @@ class EmployeeCreate extends Component
     public string  $status           = 'active';
     public ?int    $department_id    = null;
     public         $photo            = null;
+    public ?int    $applicant_id     = null;
 
     public function mount(): void
     {
         $this->emp_code  = $this->generateEmpCode();
         $this->join_date = today()->format('Y-m-d');
+
+        // Pre-fill from applicant if converting from recruitment
+        if ($applicantId = request()->query('applicant_id')) {
+            $applicant = Applicant::with('job')->find($applicantId);
+            if ($applicant) {
+                $this->applicant_id  = $applicant->id;
+                $nameParts           = explode(' ', trim($applicant->name), 2);
+                $this->first_name    = $nameParts[0];
+                $this->last_name     = $nameParts[1] ?? '';
+                $this->phone         = $applicant->phone ?? '';
+                $this->account_email = $applicant->email ?? '';
+                if ($applicant->job) {
+                    $this->designation   = $applicant->job->title ?? '';
+                    $this->department_id = $applicant->job->department_id;
+                }
+            }
+        }
     }
 
     private function generateEmpCode(): string
@@ -104,6 +124,38 @@ class EmployeeCreate extends Component
             'address'       => $this->address,
             'photo'         => $photoPath,
         ]);
+
+        // If converting from a job applicant, mark as hired and create onboarding tasks
+        if ($this->applicant_id) {
+            $applicant = Applicant::find($this->applicant_id);
+            if ($applicant) {
+                $applicant->update(['stage' => 'hired']);
+
+                $defaultTasks = [
+                    'Complete personal information form',
+                    'Submit ID and address proof documents',
+                    'Sign employment contract',
+                    'Complete IT setup and equipment handover',
+                    'Attend company orientation session',
+                    'Meet department team and manager',
+                    'Complete mandatory compliance training',
+                    'Set up payroll bank account details',
+                ];
+
+                foreach ($defaultTasks as $i => $task) {
+                    OnboardingTask::create([
+                        'employee_id' => $employee->id,
+                        'task'        => $task,
+                        'sort_order'  => $i + 1,
+                    ]);
+                }
+
+                $employee->update([
+                    'onboarding_status' => 'onboarding',
+                    'probation_end_date'=> today()->addMonths(3)->format('Y-m-d'),
+                ]);
+            }
+        }
 
         AuditService::log(
             action: 'created',
