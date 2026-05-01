@@ -5,6 +5,7 @@ namespace App\Livewire\Careers;
 use App\Models\Job;
 use App\Models\Applicant;
 use App\Models\Setting;
+use App\Services\NotificationService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -51,6 +52,13 @@ class CareerApply extends Component
             'cv_path'        => $cvPath,
             'stage'          => 'applied',
         ]);
+
+        NotificationService::notifyAdmins(
+            title: 'New Job Application',
+            message: "{$this->name} applied for {$this->job->title}.",
+            type: 'info',
+            url: '/recruitment/' . $this->job->id . '/applicants',
+        );
 
         $this->submitted = true;
     }
