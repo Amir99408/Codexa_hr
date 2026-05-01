@@ -103,24 +103,33 @@
     <div class="sidebar-root flex flex-col h-full relative z-10">
 
         {{-- ── Logo ─────────────────────────────────────────── --}}
+@php
+    $companyName = \App\Models\Setting::get('company_name', 'HRFlow');
+    $companyLogo = \App\Models\Setting::get('company_logo', '');
+@endphp
 <div class="flex items-center gap-3 px-5 py-5 flex-shrink-0" style="border-bottom: 1px solid rgba(255,255,255,0.07);">
     <div class="relative flex-shrink-0">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30"
-             style="background: linear-gradient(135deg, #ff6b35 0%, #e85d26 100%);">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-        </div>
+        @if($companyLogo)
+            <div class="w-9 h-9 rounded-xl overflow-hidden bg-white/10 flex items-center justify-center">
+                <img src="{{ $companyLogo }}" alt="{{ $companyName }}" class="w-full h-full object-contain p-0.5"/>
+            </div>
+        @else
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30"
+                 style="background: linear-gradient(135deg, #ff6b35 0%, #e85d26 100%);">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+        @endif
         <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#0f4c81] rounded-full"></span>
     </div>
 
-    <div class="flex-1">
-        <div class="leading-none mb-0.5" style="font-family:'Syne',sans-serif;">
-            <span class="text-white font-bold text-lg tracking-tight">HR</span>
-            <span class="font-bold text-lg" style="color:#ff6b35;">Flow</span>
-        </div>
-        <p class="text-[10px] font-semibold tracking-widest uppercase" style="color:rgba(147,197,253,0.5);">HR Management</p>
+    <div class="flex-1 min-w-0">
+        <p class="text-white font-bold text-sm tracking-tight truncate leading-tight" style="font-family:'Syne',sans-serif;">
+            {{ $companyName }}
+        </p>
+        <p class="text-[10px] font-semibold tracking-widest uppercase truncate" style="color:rgba(147,197,253,0.5);">HR Management</p>
     </div>
 
     {{-- Close button — mobile only --}}

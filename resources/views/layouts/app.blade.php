@@ -4,7 +4,16 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
-    <title>{{ config('app.name', 'HRFlow') }}</title>
+    @php
+        $appName = \App\Models\Setting::get('company_name') ?: config('app.name', 'HRFlow');
+        $favicon = \App\Models\Setting::get('company_favicon', '');
+    @endphp
+    <title>{{ $title ?? 'Dashboard' }} — {{ $appName }}</title>
+    @if($favicon)
+        <link rel="icon" href="{{ $favicon }}" type="image/x-icon"/>
+    @else
+        <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
+    @endif
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -40,7 +49,7 @@
         </aside>
 
         {{-- ── Main area ──────────────────────────────────────── --}}
-        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div class="flex-1 flex flex-col min-w-0">
 
             {{-- ✅ ONE header for ALL screen sizes --}}
             {{-- The hamburger button inside it is lg:hidden --}}

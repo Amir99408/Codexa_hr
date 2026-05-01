@@ -27,6 +27,36 @@
         </button>
     </div>
 
+    {{-- Leave Balance Cards --}}
+    @if(!$leaveTypes->isEmpty())
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+            @foreach($leaveTypes as $type)
+                @php $b = $balances[$type->id] ?? ['allowed' => 0, 'carried' => 0, 'used' => 0, 'available' => 0]; @endphp
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: {{ $type->color }}"></span>
+                        <span class="text-xs font-semibold text-gray-600 truncate">{{ $type->name }}</span>
+                    </div>
+                    <div class="flex items-end justify-between">
+                        <div>
+                            <p class="text-2xl font-bold {{ $b['available'] == 0 ? 'text-red-500' : 'text-[#0f4c81]' }}">
+                                {{ $b['available'] }}
+                            </p>
+                            <p class="text-xs text-gray-400">available</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-400">{{ $b['used'] }} used</p>
+                            @if($b['carried'] > 0)
+                                <p class="text-xs text-green-500">+{{ $b['carried'] }} carried</p>
+                            @endif
+                            <p class="text-xs text-gray-300">of {{ $b['allowed'] }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     {{-- Apply Form --}}
     @if($tab === 'apply')
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 max-w-lg">

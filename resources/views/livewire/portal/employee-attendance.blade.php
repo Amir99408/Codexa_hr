@@ -58,26 +58,76 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
-                @forelse($attendances as $att)
+                @forelse($calendar as $day)
                     @php
-                        $colors = ['present'=>'bg-green-100 text-green-700','absent'=>'bg-red-100 text-red-700','late'=>'bg-orange-100 text-orange-700','half_day'=>'bg-yellow-100 text-yellow-700','work_from_home'=>'bg-blue-100 text-blue-700'];
-                        $labels = ['present'=>'Present','absent'=>'Absent','late'=>'Late','half_day'=>'Half Day','work_from_home'=>'WFH'];
+                        $colors = [
+                            'present'       => 'bg-green-100 text-green-700',
+                            'absent'        => 'bg-red-100 text-red-700',
+                            'late'          => 'bg-orange-100 text-orange-700',
+                            'half_day'      => 'bg-yellow-100 text-yellow-700',
+                            'work_from_home'=> 'bg-blue-100 text-blue-700',
+                        ];
+                        $labels = [
+                            'present'       => 'Present',
+                            'absent'        => 'Absent',
+                            'late'          => 'Late',
+                            'half_day'      => 'Half Day',
+                            'work_from_home'=> 'WFH',
+                        ];
                     @endphp
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-5 py-3 text-gray-800 font-medium">{{ $att->date->format('d M Y') }}</td>
-                        <td class="px-5 py-3 text-gray-500">{{ $att->date->format('l') }}</td>
-                        <td class="px-5 py-3 text-gray-600">{{ $att->check_in ?? '—' }}</td>
-                        <td class="px-5 py-3 text-gray-600">{{ $att->check_out ?? '—' }}</td>
-                        <td class="px-5 py-3">
-                            <span class="px-2 py-1 rounded-full text-xs font-medium {{ $colors[$att->status] ?? '' }}">
-                                {{ $labels[$att->status] ?? $att->status }}
-                            </span>
-                        </td>
-                    </tr>
+
+                    @if($day['type'] === 'weekend')
+                        <tr class="bg-gray-50/70">
+                            <td class="px-5 py-2.5 text-gray-400 font-medium">{{ $day['date']->format('d M Y') }}</td>
+                            <td class="px-5 py-2.5 text-gray-400">{{ $day['date']->format('l') }}</td>
+                            <td class="px-5 py-2.5 text-gray-300">—</td>
+                            <td class="px-5 py-2.5 text-gray-300">—</td>
+                            <td class="px-5 py-2.5">
+                                <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-400">Weekend</span>
+                            </td>
+                        </tr>
+                    @elseif($day['type'] === 'holiday')
+                        <tr class="bg-purple-50/40">
+                            <td class="px-5 py-2.5 text-purple-600 font-medium">{{ $day['date']->format('d M Y') }}</td>
+                            <td class="px-5 py-2.5 text-purple-500">{{ $day['date']->format('l') }}</td>
+                            <td class="px-5 py-2.5 text-gray-300">—</td>
+                            <td class="px-5 py-2.5 text-gray-300">—</td>
+                            <td class="px-5 py-2.5">
+                                <span class="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-600">Holiday</span>
+                            </td>
+                        </tr>
+                    @elseif($day['type'] === 'future')
+                        <tr class="opacity-40">
+                            <td class="px-5 py-2.5 text-gray-500 font-medium">{{ $day['date']->format('d M Y') }}</td>
+                            <td class="px-5 py-2.5 text-gray-400">{{ $day['date']->format('l') }}</td>
+                            <td class="px-5 py-2.5 text-gray-300">—</td>
+                            <td class="px-5 py-2.5 text-gray-300">—</td>
+                            <td class="px-5 py-2.5">
+                                <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-400">—</span>
+                            </td>
+                        </tr>
+                    @else
+                        @php $att = $day['record']; @endphp
+                        <tr class="hover:bg-gray-50 {{ $att === null ? 'bg-red-50/30' : '' }}">
+                            <td class="px-5 py-3 text-gray-800 font-medium">{{ $day['date']->format('d M Y') }}</td>
+                            <td class="px-5 py-3 text-gray-500">{{ $day['date']->format('l') }}</td>
+                            <td class="px-5 py-3 text-gray-600">{{ $att?->check_in ?? '—' }}</td>
+                            <td class="px-5 py-3 text-gray-600">{{ $att?->check_out ?? '—' }}</td>
+                            <td class="px-5 py-3">
+                                @if($att)
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium {{ $colors[$att->status] ?? 'bg-gray-100 text-gray-600' }}">
+                                        {{ $labels[$att->status] ?? $att->status }}
+                                    </span>
+                                @else
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-500">Not Marked</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endif
                 @empty
                     <tr>
                         <td colspan="5" class="px-5 py-10 text-center text-gray-400 text-sm">
-                            No attendance records for this month
+                            No records for this month
                         </td>
                     </tr>
                 @endforelse

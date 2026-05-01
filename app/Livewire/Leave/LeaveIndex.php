@@ -47,7 +47,7 @@ class LeaveIndex extends Component
                 title: 'Leave Approved ✅',
                 message: "Your {$leave->leaveType->name} request for {$leave->days} day(s) has been approved.",
                 type: 'success',
-                url: '/portal/leave/apply',
+                url: '/portal/leave/apply?tab=history',
             );
 
             NotificationService::notifyAdmins(
@@ -100,7 +100,7 @@ class LeaveIndex extends Component
                 title: 'Leave Rejected ❌',
                 message: "Your {$leave->leaveType->name} request has been rejected.",
                 type: 'danger',
-                url: '/portal/leave/apply',
+                url: '/portal/leave/apply?tab=history',
             );
 
             AuditService::log(

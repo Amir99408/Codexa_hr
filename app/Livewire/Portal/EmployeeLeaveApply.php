@@ -22,6 +22,13 @@ class EmployeeLeaveApply extends Component
     public string $message       = '';
     public string $tab           = 'apply'; // apply | history
 
+    public function mount(): void
+    {
+        if (request()->query('tab') === 'history') {
+            $this->tab = 'history';
+        }
+    }
+
     public function updatedFromDate(): void { $this->calculateDays(); }
     public function updatedToDate(): void   { $this->calculateDays(); }
 
@@ -127,9 +134,34 @@ class EmployeeLeaveApply extends Component
             ->latest()
             ->get();
 
+        $year     = now()->year;
+        $balances = [];
+        if ($employee) {
+            foreach ($leaveTypes as $type) {
+                $used = Leave::where('employee_id', $employee->id)
+                    ->where('leave_type_id', $type->id)
+                    ->whereIn('status', ['approved', 'pending'])
+                    ->whereYear('from_date', $year)
+                    ->sum('days');
+
+                $carried = LeaveCarryForward::where('employee_id', $employee->id)
+                    ->where('leave_type_id', $type->id)
+                    ->where('year', $year)
+                    ->value('days') ?? 0;
+
+                $balances[$type->id] = [
+                    'allowed'   => $type->days_allowed,
+                    'carried'   => $carried,
+                    'used'      => $used,
+                    'available' => max(0, $type->days_allowed + $carried - $used),
+                ];
+            }
+        }
+
         return view('livewire.portal.employee-leave-apply', [
             'leaveTypes' => $leaveTypes,
             'myLeaves'   => $myLeaves,
+            'balances'   => $balances,
         ])->layout('layouts.portal', ['title' => 'My Leaves']);
     }
 }

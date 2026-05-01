@@ -120,8 +120,8 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-5 py-3">
                                 <p class="font-medium text-gray-800">{{ $claim->category_icon }} {{ $claim->title }}</p>
-                                @if($claim->rejection_reason)
-                                    <p class="text-xs text-red-400 mt-0.5">{{ $claim->rejection_reason }}</p>
+                                @if($claim->description)
+                                    <p class="text-xs text-gray-400 mt-0.5 truncate max-w-[200px]">{{ $claim->description }}</p>
                                 @endif
                             </td>
                             <td class="px-5 py-3 font-semibold text-gray-800">{{ currency($claim->amount) }}</td>
@@ -130,6 +130,12 @@
                                 <span class="px-2 py-1 rounded-full text-xs font-medium {{ $claim->status_color }}">
                                     {{ ucfirst($claim->status) }}
                                 </span>
+                                @if($claim->status === 'reimbursed' && $claim->reimbursed_at)
+                                    <p class="text-xs text-gray-400 mt-0.5">Paid {{ $claim->reimbursed_at->format('d M Y') }}</p>
+                                @endif
+                                @if($claim->status === 'rejected' && $claim->rejection_reason)
+                                    <p class="text-xs text-red-400 mt-0.5">{{ $claim->rejection_reason }}</p>
+                                @endif
                             </td>
                         </tr>
                     @empty

@@ -64,8 +64,15 @@ class AttendanceIndex extends Component
             ? Employee::where('id', $this->markEmployeeId)->where('status', 'active')->get()
             : Employee::where('status', 'active')->get();
 
-        $date        = Carbon::parse($this->markDate)->format('Y-m-d');
+        $parsedDate  = Carbon::parse($this->markDate);
+        $date        = $parsedDate->format('Y-m-d');
         $hasCheckInfo = in_array($this->markStatus, ['present', 'late', 'half_day', 'work_from_home']);
+
+        // Skip weekends for bulk marks (single employee can still be marked manually)
+        if (! $this->markEmployeeId && $parsedDate->isWeekend()) {
+            $this->addError('markDate', 'Cannot bulk-mark attendance on a weekend day.');
+            return;
+        }
 
         DB::transaction(function () use ($employees, $date, $hasCheckInfo) {
             foreach ($employees as $employee) {

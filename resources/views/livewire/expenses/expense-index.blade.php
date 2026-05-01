@@ -359,10 +359,15 @@
                                             Approved
                                         </span>
                                     @elseif($claim->status === 'reimbursed')
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-[11px] font-bold">
-                                            <span class="w-1.5 h-1.5 bg-[#0f4c81] rounded-full"></span>
-                                            Reimbursed
-                                        </span>
+                                        <div>
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-[11px] font-bold">
+                                                <span class="w-1.5 h-1.5 bg-[#0f4c81] rounded-full"></span>
+                                                Reimbursed
+                                            </span>
+                                            @if($claim->reimbursed_at)
+                                                <p class="text-[10px] text-gray-400 font-medium mt-1">{{ $claim->reimbursed_at->format('d M Y') }}</p>
+                                            @endif
+                                        </div>
                                     @else
                                         <div>
                                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-600 border border-red-100 rounded-full text-[11px] font-bold">
@@ -399,6 +404,7 @@
                                         @endif
                                         @if($claim->status === 'approved')
                                             <button wire:click="markReimbursed({{ $claim->id }})"
+                                                    wire:confirm="Mark this claim as reimbursed? This confirms payment has been made to {{ $claim->employee->full_name }}."
                                                     class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#0f4c81] bg-blue-50 hover:bg-blue-100 border border-blue-100 hover:border-blue-200 rounded-lg transition-all duration-150">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
