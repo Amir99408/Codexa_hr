@@ -11,8 +11,10 @@ class CheckLicense
 {
     public function handle(Request $request, Closure $next)
     {
+        $cacheKey = 'devstaq_license_' . (config('services.devstaq.domain') ?: $request->getHost());
+
         // Only cache valid (true) results — never cache false, so re-activation takes effect immediately
-        if (Cache::get('devstaq_license') === true) {
+        if (Cache::get($cacheKey) === true) {
             return $next($request);
         }
 
@@ -35,7 +37,7 @@ class CheckLicense
             return response(view('errors.license', compact('status')), 200);
         }
 
-        Cache::put('devstaq_license', true, now()->addMinutes(15));
+        Cache::put($cacheKey, true, now()->addMinutes(15));
 
         return $next($request);
     }
