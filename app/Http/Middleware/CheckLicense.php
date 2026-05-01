@@ -24,7 +24,7 @@ class CheckLicense
             ]);
 
             $valid  = $response->successful() && $response->json('valid') === true;
-            $reason = $response->json('reason') ?? 'expired'; // 'suspended' or 'expired'
+            $reason = $response->json('status') ?? 'expired'; // 'suspended' or 'expired'
         } catch (\Exception $e) {
             $valid  = true;
             $reason = null;
