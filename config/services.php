@@ -36,9 +36,10 @@ return [
     ],
 
     'devstaq' => [
-        'url'    => env('DEVSTAQ_LICENSE_URL'),
-        'key'    => env('DEVSTAQ_LICENSE_KEY'),
-        'domain' => env('DEVSTAQ_DOMAIN'),
+        'url'      => env('DEVSTAQ_LICENSE_URL'),
+        'key'      => env('DEVSTAQ_LICENSE_KEY'),
+        'domain'   => env('DEVSTAQ_DOMAIN'),
+        'app_type' => env('DEVSTAQ_APP_TYPE', 'hr_management'),
     ],
 
 ];

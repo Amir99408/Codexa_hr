@@ -22,7 +22,7 @@ class CheckLicense
             $response = Http::timeout(5)->post(config('services.devstaq.url').'/api/verify', [
                 'license_key' => config('services.devstaq.key'),
                 'domain'      => config('services.devstaq.domain') ?: $request->getHost(),
-                'app_type'    => 'hr_management',
+                'app_type'    => config('services.devstaq.app_type'),
             ]);
 
             $valid  = $response->successful() && $response->json('valid') === true;
