@@ -32,7 +32,7 @@ class CheckLicense
 
         if (! $valid) {
             $status = $reason === 'suspended' ? 'suspended' : 'expired';
-            return response(view('errors.license', compact('status')), 403);
+            return response(view('errors.license', compact('status')), 200);
         }
 
         Cache::put('devstaq_license', true, now()->addHours(6));
