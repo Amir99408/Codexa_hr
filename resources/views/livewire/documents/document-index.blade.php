@@ -143,48 +143,74 @@
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
                 <h3 class="text-base font-bold text-gray-900 mb-4">Upload Document</h3>
 
+                {{-- Storage error --}}
+                @if($uploadError)
+                    <div class="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium">
+                        {{ $uploadError }}
+                    </div>
+                @endif
+
                 <div class="space-y-3">
                     <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Title</label>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Title <span class="text-red-400">*</span></label>
                         <input wire:model="title" type="text" placeholder="e.g. National ID Card"
-                               class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+                               class="w-full px-3 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                               {{ $errors->has('title') ? 'border-red-400 bg-red-50' : 'border-gray-200' }}"/>
                         @error('title') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Category</label>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Category <span class="text-red-400">*</span></label>
                         <select wire:model="docCategory"
-                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                class="w-full px-3 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                {{ $errors->has('docCategory') ? 'border-red-400 bg-red-50' : 'border-gray-200' }}">
+                            <option value="">— Select category —</option>
                             <option value="id">ID Document</option>
                             <option value="contract">Contract</option>
                             <option value="certificate">Certificate</option>
                             <option value="general">General</option>
                         </select>
+                        @error('docCategory') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Expiry Date (optional)</label>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Expiry Date <span class="text-gray-400 font-normal">(optional)</span></label>
                         <input wire:model="expiryDate" type="date"
                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
-                        @error('expiryDate') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">File (PDF, JPG, PNG, DOC — max 10MB)</label>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">File <span class="text-red-400">*</span> <span class="text-gray-400 font-normal">(PDF, JPG, PNG, DOC — max 10MB)</span></label>
                         <input wire:model="document" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                               class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                               class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100
+                               {{ $errors->has('document') ? 'border border-red-400 rounded-xl' : '' }}"/>
                         @error('document') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                        <div wire:loading wire:target="document" class="text-xs text-blue-500 mt-1">Uploading...</div>
+                        <div wire:loading wire:target="document" class="text-xs text-blue-500 mt-1 flex items-center gap-1">
+                            <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                            </svg>
+                            Processing file...
+                        </div>
                     </div>
                 </div>
 
                 <div class="flex gap-3 mt-5">
                     <button wire:click="upload"
-                            class="flex-1 py-2.5 bg-[#0f4c81] hover:bg-blue-800 text-white rounded-xl text-sm font-semibold transition-colors">
-                        Upload
+                            wire:loading.attr="disabled"
+                            wire:target="upload,document"
+                            class="flex-1 py-2.5 bg-[#0f4c81] hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                        <svg wire:loading wire:target="upload" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                        <span wire:loading.remove wire:target="upload">Upload</span>
+                        <span wire:loading wire:target="upload">Uploading...</span>
                     </button>
                     <button wire:click="$set('showUploadModal', false)"
-                            class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition-colors">
+                            wire:loading.attr="disabled"
+                            wire:target="upload"
+                            class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 disabled:opacity-60 text-gray-700 rounded-xl text-sm font-semibold transition-colors">
                         Cancel
                     </button>
                 </div>

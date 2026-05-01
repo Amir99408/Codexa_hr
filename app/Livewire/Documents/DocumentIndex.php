@@ -13,9 +13,10 @@ class DocumentIndex extends Component
 {
     use WithFileUploads, WithPagination;
 
-    public string $search   = '';
-    public string $category = '';
-    public string $message  = '';
+    public string $search      = '';
+    public string $category   = '';
+    public string $message    = '';
+    public string $uploadError = '';
 
     // Upload form
     public bool    $showUploadModal = false;
@@ -30,13 +31,15 @@ class DocumentIndex extends Component
     public function openUpload(int $employeeId): void
     {
         $this->uploadEmployeeId = $employeeId;
-        $this->reset(['title', 'docCategory', 'expiryDate', 'document']);
-        $this->docCategory   = 'general';
+        $this->reset(['title', 'docCategory', 'expiryDate', 'document', 'uploadError']);
+        $this->docCategory    = 'general';
         $this->showUploadModal = true;
     }
 
     public function upload(): void
     {
+        $this->uploadError = '';
+
         $this->validate([
             'title'       => 'required|string|max:150',
             'docCategory' => 'required|in:id,contract,certificate,general',
@@ -44,20 +47,24 @@ class DocumentIndex extends Component
             'document'    => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
         ]);
 
-        $path     = $this->document->store("documents/{$this->uploadEmployeeId}", 'public');
-        $fileName = $this->document->getClientOriginalName();
+        try {
+            $path     = $this->document->store("documents/{$this->uploadEmployeeId}", 'public');
+            $fileName = $this->document->getClientOriginalName();
 
-        EmployeeDocument::create([
-            'employee_id' => $this->uploadEmployeeId,
-            'title'       => $this->title,
-            'category'    => $this->docCategory,
-            'file_path'   => $path,
-            'file_name'   => $fileName,
-            'expiry_date' => $this->expiryDate ?: null,
-        ]);
+            EmployeeDocument::create([
+                'employee_id' => $this->uploadEmployeeId,
+                'title'       => $this->title,
+                'category'    => $this->docCategory,
+                'file_path'   => $path,
+                'file_name'   => $fileName,
+                'expiry_date' => $this->expiryDate ?: null,
+            ]);
 
-        $this->reset(['showUploadModal', 'uploadEmployeeId', 'title', 'docCategory', 'expiryDate', 'document']);
-        $this->message = 'Document uploaded successfully.';
+            $this->reset(['showUploadModal', 'uploadEmployeeId', 'title', 'docCategory', 'expiryDate', 'document', 'uploadError']);
+            $this->message = 'Document uploaded successfully.';
+        } catch (\Exception $e) {
+            $this->uploadError = 'Failed to save the file. Please check storage permissions and try again.';
+        }
     }
 
     public function verify(int $docId): void
