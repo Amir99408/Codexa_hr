@@ -67,9 +67,17 @@ class LicenseSettings extends Component
 
     public function refresh(): void
     {
-        $cacheKey = 'devstaq_license_' . config('services.devstaq.domain');
-        Cache::forget($cacheKey);
         $this->loadLicenseInfo();
+
+        $cacheKey = 'devstaq_license_' . config('services.devstaq.domain');
+
+        if (! empty($this->licenseInfo['valid'])) {
+            // License is active — extend cache
+            Cache::put($cacheKey, true, now()->addMinutes(15));
+        }
+        // If invalid, leave cache alone — let it expire naturally (max 15 min)
+        // so the admin isn't locked out just by checking the status
+
         $this->message     = 'License status refreshed.';
         $this->messageType = 'success';
     }
