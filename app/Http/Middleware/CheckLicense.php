@@ -23,13 +23,16 @@ class CheckLicense
                 'app_type'    => 'hr_management',
             ]);
 
-            $valid = $response->successful() && $response->json('valid') === true;
+            $valid  = $response->successful() && $response->json('valid') === true;
+            $reason = $response->json('reason') ?? 'expired'; // 'suspended' or 'expired'
         } catch (\Exception $e) {
-            $valid = true; // don't block users if license server is temporarily down
+            $valid  = true;
+            $reason = null;
         }
 
         if (! $valid) {
-            abort(403, 'Your license is invalid or has expired. Please contact DevStaq.');
+            $status = $reason === 'suspended' ? 'suspended' : 'expired';
+            return response(view('errors.license', compact('status')), 403);
         }
 
         Cache::put('devstaq_license', true, now()->addHours(6));
