@@ -5,7 +5,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        @php
+            $appName = \App\Models\Setting::get('company_name') ?: config('app.name', 'HRFlow');
+            $favicon = \App\Models\Setting::get('company_favicon', '');
+        @endphp
+        <title>{{ $appName }}</title>
+        @if($favicon)
+            <link rel="icon" href="{{ $favicon }}" type="image/x-icon"/>
+        @else
+            <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
+        @endif
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

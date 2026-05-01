@@ -4,7 +4,17 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ $title ?? 'Employee Portal' }} — HRFlow</title>
+    @php
+        $appName = \App\Models\Setting::get('company_name') ?: config('app.name', 'HRFlow');
+        $favicon = \App\Models\Setting::get('company_favicon', '');
+        $companyLogo = \App\Models\Setting::get('company_logo', '');
+    @endphp
+    <title>{{ $title ?? 'Employee Portal' }} — {{ $appName }}</title>
+    @if($favicon)
+        <link rel="icon" href="{{ $favicon }}" type="image/x-icon"/>
+    @else
+        <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
+    @endif
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
         href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap"
@@ -46,16 +56,22 @@
 
                 {{-- Logo --}}
                 <div class="flex items-center gap-3 px-5 py-5 border-b border-blue-700 flex-shrink-0">
-                    <div class="w-9 h-9 bg-[#ff6b35] rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <span class="text-white font-bold text-lg" style="font-family:'Syne',sans-serif">
-                            HR<span class="text-[#ff6b35]">Flow</span>
-                        </span>
+                    @if($companyLogo)
+                        <div class="w-9 h-9 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center flex-shrink-0">
+                            <img src="{{ $companyLogo }}" alt="{{ $appName }}" class="w-full h-full object-contain p-0.5"/>
+                        </div>
+                    @else
+                        <div class="w-9 h-9 bg-[#ff6b35] rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                    @endif
+                    <div class="min-w-0">
+                        <p class="text-white font-bold text-sm truncate" style="font-family:'Syne',sans-serif">
+                            {{ $appName }}
+                        </p>
                         <p class="text-blue-300 text-xs">Employee Portal</p>
                     </div>
                 </div>

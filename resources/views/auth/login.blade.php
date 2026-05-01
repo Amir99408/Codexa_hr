@@ -78,15 +78,25 @@
         <div class="w-full max-w-md">
 
             {{-- ── Brand ──────────────────────────────────────── --}}
+            @php
+                $companyName = \App\Models\Setting::get('company_name') ?: config('app.name', 'HRFlow');
+                $companyLogo = \App\Models\Setting::get('company_logo', '');
+            @endphp
             <div class="text-center mb-5 slide-down">
-                <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-lg shadow-blue-900/20"
-                     style="background:linear-gradient(135deg,#0f4c81,#1a6eb5);">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                    </svg>
-                </div>
-                <h1 class="text-xl font-extrabold text-gray-900 tracking-tight">Welcome back</h1>
-                <p class="text-xs text-gray-400 font-medium mt-0.5">Sign in to your HR dashboard</p>
+                @if($companyLogo)
+                    <div class="w-16 h-16 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-lg shadow-blue-900/10 bg-white border border-gray-100 p-2">
+                        <img src="{{ $companyLogo }}" alt="{{ $companyName }}" class="w-full h-full object-contain"/>
+                    </div>
+                @else
+                    <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-lg shadow-blue-900/20"
+                         style="background:linear-gradient(135deg,#0f4c81,#1a6eb5);">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                @endif
+                <h1 class="text-xl font-extrabold text-gray-900 tracking-tight">{{ $companyName }}</h1>
+                <p class="text-xs text-gray-400 font-medium mt-0.5">Sign in to continue</p>
             </div>
 
             {{-- ── Card ───────────────────────────────────────── --}}
