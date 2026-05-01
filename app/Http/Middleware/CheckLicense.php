@@ -35,7 +35,7 @@ class CheckLicense
             return response(view('errors.license', compact('status')), 200);
         }
 
-        Cache::put('devstaq_license', true, now()->addHours(6));
+        Cache::put('devstaq_license', true, now()->addMinutes(15));
 
         return $next($request);
     }
