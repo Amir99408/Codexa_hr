@@ -187,10 +187,18 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/notifications', NotificationIndex::class)->name('notifications.index');
 
     // Recruitment
-    Route::get('/recruitment',                  JobIndex::class)->name('recruitment.jobs');
-    Route::get('/recruitment/create',           JobCreate::class)->name('recruitment.jobs.create');
-    Route::get('/recruitment/{job}/edit',       JobCreate::class)->name('recruitment.jobs.edit');
-    Route::get('/recruitment/{job}/applicants', ApplicantIndex::class)->name('recruitment.applicants');
+    Route::get('/recruitment',                        JobIndex::class)->name('recruitment.jobs');
+    Route::get('/recruitment/create',                 JobCreate::class)->name('recruitment.jobs.create');
+    Route::get('/recruitment/{job}/edit',             JobCreate::class)->name('recruitment.jobs.edit');
+    Route::get('/recruitment/{job}/applicants',       ApplicantIndex::class)->name('recruitment.applicants');
+    Route::get('/recruitment/applicants/{applicant}/cv', function (\App\Models\Applicant $applicant) {
+        abort_if(! $applicant->cv_path, 404);
+        abort_if(! \Illuminate\Support\Facades\Storage::disk('local')->exists($applicant->cv_path), 404);
+        return \Illuminate\Support\Facades\Storage::disk('local')->download(
+            $applicant->cv_path,
+            \Illuminate\Support\Str::slug($applicant->name) . '-cv.' . pathinfo($applicant->cv_path, PATHINFO_EXTENSION)
+        );
+    })->name('applicant.cv.download');
 
     // Performance Reviews
     Route::get('/performance',              PerformanceIndex::class)->name('performance.index');
