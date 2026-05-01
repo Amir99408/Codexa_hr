@@ -54,6 +54,14 @@ use App\Livewire\Careers\CareerApply;
 use App\Livewire\RoleManagement\RoleIndex;
 use App\Livewire\Onboarding\OnboardingIndex;
 use App\Livewire\Documents\DocumentIndex;
+use App\Livewire\Settings\LicenseSettings;
+use App\Http\Controllers\LicenseActivationController;
+
+// -----------------------------------------------
+// LICENSE ACTIVATION (no auth required)
+// -----------------------------------------------
+Route::get('/activate', [LicenseActivationController::class, 'show'])->name('license.activate');
+Route::post('/activate', [LicenseActivationController::class, 'activate'])->name('license.activate.submit');
 
 // -----------------------------------------------
 // ADMIN ROUTES
@@ -158,6 +166,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Settings (admin only)
     Route::middleware('permission:manage-settings')->group(function () {
         Route::get('/settings/company', CompanySettings::class)->name('settings.company');
+        Route::get('/settings/license', LicenseSettings::class)->name('settings.license');
     });
     Route::get('/settings/profile', ProfileSettings::class)->name('settings.profile');
 
