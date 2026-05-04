@@ -104,7 +104,7 @@
 
         {{-- ── Logo ─────────────────────────────────────────── --}}
 @php
-    $companyName = \App\Models\Setting::get('company_name', 'HRFlow');
+    $companyName = \App\Models\Setting::get('company_name', 'DevStaq HR');
     $companyLogo = \App\Models\Setting::get('company_logo', '');
 @endphp
 <div class="flex items-center gap-3 px-5 py-5 flex-shrink-0" style="border-bottom: 1px solid rgba(255,255,255,0.07);">

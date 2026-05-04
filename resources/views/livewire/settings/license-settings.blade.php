@@ -112,7 +112,7 @@
                         <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Settings</span>
                     </div>
                     <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">License Settings</h2>
-                    <p class="text-sm text-gray-400 font-medium mt-0.5">Manage your HRFlow license</p>
+                    <p class="text-sm text-gray-400 font-medium mt-0.5">Manage your DevStaq HR license</p>
                 </div>
             </div>
 

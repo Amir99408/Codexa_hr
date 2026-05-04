@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Activate License — HRFlow</title>
+    <title>Activate License — DevStaq HR</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -269,7 +269,7 @@
                 One-time setup
             </div>
             <h1>Activate Your License</h1>
-            <p class="subtitle">Enter your license key to unlock HRFlow. You only need to do this once.</p>
+            <p class="subtitle">Enter your license key to unlock DevStaq HR. You only need to do this once.</p>
         </div>
 
         @if(session('error'))
@@ -305,7 +305,7 @@
                 @error('license_key')
                     <p class="field-hint" style="color:#dc2626">{{ $message }}</p>
                 @enderror
-                <p class="field-hint">Your license key was provided when you purchased HRFlow.</p>
+                <p class="field-hint">Your license key was provided when you purchased DevStaq HR.</p>
             </div>
 
             <button type="submit" class="btn-activate">
@@ -327,7 +327,7 @@
                 How to get your license key
             </div>
             <ul class="info-steps">
-                <li><span class="step-num">1</span> Purchase HRFlow from <a href="https://devstaq3.com" target="_blank" style="color:#0f4c81;font-weight:600">devstaq3.com</a></li>
+                <li><span class="step-num">1</span> Purchase DevStaq HR from <a href="https://devstaq3.com" target="_blank" style="color:#0f4c81;font-weight:600">devstaq3.com</a></li>
                 <li><span class="step-num">2</span> Check your email for the license key</li>
                 <li><span class="step-num">3</span> Paste it above and click Activate</li>
             </ul>

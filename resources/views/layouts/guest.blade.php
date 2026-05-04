@@ -6,7 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         @php
-            $appName = \App\Models\Setting::get('company_name') ?: config('app.name', 'HRFlow');
+            $appName = \App\Models\Setting::get('company_name') ?: config('app.name', 'DevStaq HR');
             $favicon = \App\Models\Setting::get('company_favicon', '');
         @endphp
         <title>{{ $appName }}</title>

@@ -79,7 +79,7 @@
 
             {{-- ── Brand ──────────────────────────────────────── --}}
             @php
-                $companyName = \App\Models\Setting::get('company_name') ?: config('app.name', 'HRFlow');
+                $companyName = \App\Models\Setting::get('company_name') ?: config('app.name', 'DevStaq HR');
                 $companyLogo = \App\Models\Setting::get('company_logo', '');
             @endphp
             <div class="text-center mb-5 slide-down">

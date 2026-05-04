@@ -10,7 +10,7 @@ class SettingsSeeder extends Seeder
     public function run(): void
     {
         $defaults = [
-            'company_name'    => 'HRFlow',
+            'company_name'    => 'DevStaq HR',
             'company_email'   => 'hr@company.com',
             'company_phone'   => '',
             'company_address' => '',

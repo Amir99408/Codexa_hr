@@ -1,6 +1,6 @@
 @props(['title' => 'Dashboard'])
 
-@php $companyName = \App\Models\Setting::get('company_name') ?: config('app.name', 'HRFlow'); @endphp
+@php $companyName = \App\Models\Setting::get('company_name') ?: config('app.name', 'DevStaq HR'); @endphp
 
 <header class="h-16 bg-white/95 backdrop-blur-sm border-b border-gray-100 flex items-center justify-between px-4 lg:px-6 flex-shrink-0 shadow-sm shadow-gray-100/80">
 

@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     @php
-        $appName = \App\Models\Setting::get('company_name') ?: config('app.name', 'HRFlow');
+        $appName = \App\Models\Setting::get('company_name') ?: config('app.name', 'DevStaq HR');
         $favicon = \App\Models\Setting::get('company_favicon', '');
         $companyLogo = \App\Models\Setting::get('company_logo', '');
     @endphp

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>License {{ $status === 'suspended' ? 'Suspended' : 'Expired' }} — HRFlow</title>
+    <title>License {{ $status === 'suspended' ? 'Suspended' : 'Expired' }} — DevStaq HR</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -216,13 +216,13 @@
         @if($status === 'suspended')
             <h1>Your License Has Been Suspended</h1>
             <p class="desc">
-                Access to HRFlow has been temporarily suspended.<br>
+                Access to DevStaq HR has been temporarily suspended.<br>
                 Please contact support to resolve this issue and restore access.
             </p>
         @else
             <h1>Your License Has Expired</h1>
             <p class="desc">
-                Your HRFlow license has expired and access has been restricted.<br>
+                Your DevStaq HR license has expired and access has been restricted.<br>
                 Please renew your license to continue using the application.
             </p>
         @endif

@@ -60,6 +60,6 @@ class LicenseActivationController extends Controller
         $cacheKey = 'devstaq_license_' . (config('services.devstaq.domain') ?: $request->getHost());
         Cache::put($cacheKey, true, now()->addMinutes(15));
 
-        return redirect()->route('dashboard')->with('success', 'License activated successfully. Welcome to HRFlow!');
+        return redirect()->route('dashboard')->with('success', 'License activated successfully. Welcome to DevStaq HR!');
     }
 }
