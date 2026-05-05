@@ -230,7 +230,6 @@
 
                                     <div class="flex-1">
                                         <input wire:model="new_photo"
-                                               x-on:change="$wire.savePhoto()"
                                                type="file"
                                                accept="image/png, image/jpeg"
                                                class="text-xs text-gray-500

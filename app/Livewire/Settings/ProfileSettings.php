@@ -8,23 +8,45 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Livewire\WithFileUploads;
 
-
 class ProfileSettings extends Component
 {
     use WithFileUploads;
-    public string $name            = '';
-    public string $email           = '';
+
+    public string $name             = '';
+    public string $email            = '';
     public string $current_password = '';
-    public string $new_password    = '';
+    public string $new_password     = '';
     public string $new_password_confirmation = '';
-    public string $message         = '';
-    public string $passwordMessage = '';
+    public string $message          = '';
+    public string $passwordMessage  = '';
     public $new_photo = null;
 
     public function mount(): void
     {
         $this->name  = Auth::user()->name;
         $this->email = Auth::user()->email;
+    }
+
+    public function updatedNewPhoto(): void
+    {
+        $this->validate([
+            'new_photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $user = Auth::user();
+
+        $path = $this->new_photo->store('photos/users', 'public');
+
+        if ($user->photo) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
+        }
+
+        $user->photo = $path;
+        $user->save();
+
+        $this->reset('new_photo');
+
+        $this->redirect(route('settings.profile'), navigate: false);
     }
 
     public function updateProfile(): void
@@ -69,30 +91,4 @@ class ProfileSettings extends Component
         return view('livewire.settings.profile-settings')
             ->layout('layouts.app', ['title' => 'Profile Settings']);
     }
-  public function savePhoto(): void
-{ 
-
-    $this->validate([
-        'new_photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
-
-    $user = Auth::user();
-
-    // Store new photo
-    $path = $this->new_photo->store('photos/users', 'public');
-
-    // Delete old photo if exists
-    if ($user->photo) {
-        \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
-    }
-
-    // Update database
-    $user->photo = $path;
-    $user->save();
-
-    // Reset file input
-    $this->reset('new_photo');
-
-    $this->redirect(route('settings.profile'), navigate: false);
-}
 }
