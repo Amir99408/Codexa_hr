@@ -230,6 +230,7 @@
 
                                     <div class="flex-1">
                                         <input wire:model="new_photo"
+                                               x-on:change="$wire.savePhoto()"
                                                type="file"
                                                accept="image/png, image/jpeg"
                                                class="text-xs text-gray-500
@@ -240,20 +241,14 @@
                                                       file:shadow-sm"
                                                style="--tw-file-bg: #0f4c81;"
                                                />
-                                        <p class="text-[11px] text-gray-400 font-medium mt-1.5">JPG, PNG — max 2MB</p>
-                                        @if($new_photo)
-                                            <button wire:click="savePhoto"
-                                                    wire:loading.attr="disabled"
-                                                    type="button"
-                                                    class="mt-2.5 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white shadow-sm hover:-translate-y-0.5 transition-all duration-150"
-                                                    style="background:linear-gradient(135deg,#0f4c81,#1a6eb5);">
-                                                <svg wire:loading.remove wire:target="savePhoto" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                                                </svg>
-                                                <span wire:loading.remove wire:target="savePhoto">Upload Photo</span>
-                                                <span wire:loading wire:target="savePhoto">Uploading...</span>
-                                            </button>
-                                        @endif
+                                        <p class="text-[11px] text-gray-400 font-medium mt-1.5">JPG, PNG — max 2MB. Photo saves automatically.</p>
+                                        <div wire:loading wire:target="new_photo,savePhoto" class="mt-2 flex items-center gap-2 text-[11px] text-[#0f4c81] font-semibold">
+                                            <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                            </svg>
+                                            Uploading...
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -93,7 +93,6 @@ class ProfileSettings extends Component
     // Reset file input
     $this->reset('new_photo');
 
-    // Success message
-    $this->message = 'Profile photo updated successfully!';
+    $this->redirect(route('settings.profile'), navigate: false);
 }
 }
