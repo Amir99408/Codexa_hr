@@ -455,7 +455,7 @@
                 <div class="relative flex-shrink-0">
                     <div class="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 bg-[#ff6b35] flex items-center justify-center">
     @if(auth()->user()->photo)
-        <img src="{{ auth()->user()->photo }}" class="w-full h-full object-cover"/>
+        <img src="{{ asset('storage/' . auth()->user()->photo) }}" class="w-full h-full object-cover"/>
     @else
         <span class="text-white text-sm font-bold">
             {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
