@@ -205,8 +205,8 @@
                                                       file:mr-3 file:py-1.5 file:px-3
                                                       file:rounded-lg file:border-0
                                                       file:text-xs file:font-bold file:text-white
-                                                      file:cursor-pointer"
-                                               style="--file-bg:#0f4c81;"/>
+                                                      file:cursor-pointer file:bg-[#0f4c81]
+                                                      file:hover:bg-[#1a6eb5] file:transition-colors"/>
                                         <p class="text-[11px] text-gray-400 mt-1">JPG, PNG — max 2MB. Saves automatically.</p>
                                         <div wire:loading wire:target="new_photo" class="mt-1 flex items-center gap-1.5 text-[11px] text-[#0f4c81] font-semibold">
                                             <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
