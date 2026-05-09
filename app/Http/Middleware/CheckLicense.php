@@ -17,6 +17,11 @@ class CheckLicense
             return $next($request);
         }
 
+        // Bypass license check on local development server
+        if (app()->environment('local')) {
+            return $next($request);
+        }
+
         $cacheKey   = 'devstaq_license_' . (config('services.devstaq.domain') ?: $request->getHost());
         $licenseKey = Setting::get('license_key') ?: config('services.devstaq.key');
 

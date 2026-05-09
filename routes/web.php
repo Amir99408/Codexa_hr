@@ -49,6 +49,8 @@ use App\Livewire\Attendance\DeviceLogs;
 use App\Livewire\WarningLetters\WarningLetterIndex;
 use App\Livewire\WarningLetters\WarningLetterCreate;
 use App\Livewire\Portal\EmployeeWarnings;
+use App\Livewire\Portal\EmployeeChangePassword;
+use App\Livewire\Portal\EmployeeUpdatePhoto;
 use App\Livewire\Careers\CareersIndex;
 use App\Livewire\Careers\CareerApply;
 use App\Livewire\RoleManagement\RoleIndex;
@@ -240,6 +242,8 @@ Route::middleware(['auth', 'employee'])->prefix('portal')->group(function () {
     Route::get('/shifts', EmployeeShifts::class)->name('employee.shifts');
     Route::get('/advance', EmployeeAdvance::class)->name('employee.advance');
     Route::get('/warnings', EmployeeWarnings::class)->name('employee.warnings');
+    Route::get('/change-password', EmployeeChangePassword::class)->name('employee.change-password');
+    Route::get('/update-photo', EmployeeUpdatePhoto::class)->name('employee.update-photo');
 });
 
 // -----------------------------------------------

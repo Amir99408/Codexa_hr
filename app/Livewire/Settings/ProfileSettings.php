@@ -77,7 +77,7 @@ class ProfileSettings extends Component
         }
 
         Auth::user()->update([
-            'password' => Hash::make($this->new_password),
+            'password' => $this->new_password,
         ]);
 
         $this->current_password          = '';

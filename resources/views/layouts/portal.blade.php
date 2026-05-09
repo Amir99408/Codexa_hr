@@ -31,6 +31,10 @@
         h3 {
             font-family: 'Syne', sans-serif;
         }
+
+        /* Hide scrollbar on portal nav, same as admin sidebar */
+        .portal-nav::-webkit-scrollbar { display: none; }
+        .portal-nav { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 
@@ -77,7 +81,7 @@
                 </div>
 
                 {{-- Nav --}}
-                <nav class="flex-1 px-3 py-4 space-y-0.5">
+                <nav class="portal-nav flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
 
                     <p class="text-blue-400 text-xs font-semibold uppercase px-3 pt-2 pb-1 tracking-wider">My Portal</p>
 
@@ -158,15 +162,43 @@
     My Warnings
 </a>
 
+                    <p class="text-blue-400 text-xs font-semibold uppercase px-3 pt-4 pb-1 tracking-wider">Account</p>
+
+                    <a href="{{ route('employee.update-photo') }}"
+                        class="flex items-center gap-3 px-3 py-2.5 mb-1 rounded-lg text-sm font-medium
+                          {{ request()->routeIs('employee.update-photo') ? 'bg-[#ff6b35] text-white' : 'text-blue-100 hover:bg-blue-700' }}">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Update Photo
+                    </a>
+
+                    <a href="{{ route('employee.change-password') }}"
+                        class="flex items-center gap-3 px-3 py-2.5 mb-1 rounded-lg text-sm font-medium
+                          {{ request()->routeIs('employee.change-password') ? 'bg-[#ff6b35] text-white' : 'text-blue-100 hover:bg-blue-700' }}">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        Change Password
+                    </a>
+
                 </nav>
 
                 {{-- User at bottom --}}
                 <div class="border-t border-blue-700 p-4 flex-shrink-0">
                     <div class="flex items-center gap-3">
-                        <div
-                            class="w-9 h-9 rounded-full bg-[#ff6b35] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                            {{ strtoupper(substr(auth()->user()->name ?? 'E', 0, 1)) }}
-                        </div>
+                        @php $portalEmployee = auth()->user()->employee; @endphp
+                        @if($portalEmployee?->photo)
+                            <img src="{{ asset('storage/' . $portalEmployee->photo) }}"
+                                 alt="{{ auth()->user()->name }}"
+                                 class="w-9 h-9 rounded-full object-cover flex-shrink-0 ring-2 ring-white/20"/>
+                        @else
+                            <div class="w-9 h-9 rounded-full bg-[#ff6b35] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                                {{ strtoupper(substr(auth()->user()->name ?? 'E', 0, 1)) }}
+                            </div>
+                        @endif
                         <div class="flex-1 min-w-0">
                             <p class="text-white text-sm font-medium truncate">{{ auth()->user()->name }}</p>
                             <p class="text-blue-300 text-xs">Employee</p>

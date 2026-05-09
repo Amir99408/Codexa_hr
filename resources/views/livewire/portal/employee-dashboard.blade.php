@@ -9,9 +9,15 @@
         {{-- Welcome --}}
         <div class="bg-[#0f4c81] rounded-xl p-6 mb-6 text-white">
             <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-full bg-[#ff6b35] flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
-                    {{ strtoupper(substr($employee->first_name, 0, 1)) }}
-                </div>
+                @if($employee->photo)
+                    <img src="{{ asset('storage/' . $employee->photo) }}"
+                         alt="{{ $employee->first_name }}"
+                         class="w-14 h-14 rounded-full object-cover flex-shrink-0 ring-2 ring-white/30"/>
+                @else
+                    <div class="w-14 h-14 rounded-full bg-[#ff6b35] flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
+                        {{ strtoupper(substr($employee->first_name, 0, 1)) }}
+                    </div>
+                @endif
                 <div>
                     <h2 class="text-xl font-bold">Welcome back, {{ $employee->first_name }}!</h2>
                     <p class="text-blue-200 text-sm">{{ $employee->designation ?? 'Employee' }} — {{ $employee->department?->name ?? '' }}</p>
