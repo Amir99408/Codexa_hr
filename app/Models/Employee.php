@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 
 class Employee extends Model
 {
@@ -27,7 +28,17 @@ class Employee extends Model
         'photo',
         'onboarding_status',
         'probation_end_date',
+        'location_token',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $emp) {
+            if (empty($emp->location_token)) {
+                $emp->location_token = (string) Str::uuid();
+            }
+        });
+    }
 
     protected $casts = [
         'date_of_birth'      => 'date',
@@ -76,5 +87,10 @@ public function onboardingTasks()
 public function documents()
 {
     return $this->hasMany(EmployeeDocument::class);
+}
+
+public function locations()
+{
+    return $this->hasMany(EmployeeLocation::class);
 }
 }

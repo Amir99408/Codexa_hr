@@ -305,6 +305,18 @@
                 @endif
             </a>
 
+            <a href="{{ route('tracking.index') }}"
+               class="nav-item {{ request()->routeIs('tracking.*') ? 'active' : '' }}">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Tracking
+                @if(request()->routeIs('tracking.*'))
+                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-white/60"></span>
+                @endif
+            </a>
+
             <a href="{{ route('shifts.index') }}"
                class="nav-item {{ request()->routeIs('shifts.*') ? 'active' : '' }}">
                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     @php
         $appName = \App\Models\Setting::get('company_name') ?: config('app.name', 'DevStaq HR');
         $favicon = \App\Models\Setting::get('company_favicon', '');
@@ -35,6 +36,7 @@
         /* Hide scrollbar on portal nav, same as admin sidebar */
         .portal-nav::-webkit-scrollbar { display: none; }
         .portal-nav { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes pulse-t { 0%,100%{opacity:1;} 50%{opacity:.3;} }
     </style>
 </head>
 
@@ -234,9 +236,17 @@
                 </button>
                 <div class="flex-1 flex items-center justify-between">
                     <h1 class="text-sm font-semibold text-gray-700">{{ $title ?? 'Employee Portal' }}</h1>
-                    <span class="text-xs text-gray-400">{{ now()->format('l, d M Y') }}</span>
-                    <!-- Add the notification bell here -->
-                    <livewire:notification-bell />
+                    <div class="flex items-center gap-3">
+                        @php $_showBar = ($_trackToken ?? null) && ($_trackActive ?? false); @endphp
+                        <div id="tracking-status-bar"
+                             style="display:{{ $_showBar ? 'flex' : 'none' }};align-items:center;gap:5px;background:#ecfdf5;border:1px solid #d1fae5;border-radius:20px;padding:3px 10px 3px 7px;cursor:pointer;"
+                             onclick="_stopTracking()" title="Location tracking active — click to stop">
+                            <span style="width:7px;height:7px;border-radius:50%;background:#10b981;flex-shrink:0;animation:pulse-t 2s infinite;"></span>
+                            <span style="font-size:11px;font-weight:600;color:#065f46;white-space:nowrap;">Tracking</span>
+                        </div>
+                        <span class="text-xs text-gray-400">{{ now()->format('l, d M Y') }}</span>
+                        <livewire:notification-bell />
+                    </div>
                 </div>
             </header>
 
@@ -245,11 +255,64 @@
                 {{ $slot }}
             </main>
 
-
         </div>
     </div>
 
     @livewireScripts
+
+    {{-- Auto location tracking when marked present --}}
+    @php
+        $_trackEmp   = auth()->user()?->employee;
+        $_trackToken = $_trackEmp?->location_token;
+        $_trackActive = $_trackEmp && \App\Models\Attendance::where('employee_id', $_trackEmp->id)
+            ->whereDate('date', today())
+            ->whereIn('status', ['present', 'late', 'work_from_home', 'half_day'])
+            ->exists();
+    @endphp
+
+    @if($_trackToken && $_trackActive)
+    <script>
+    (function() {
+        const PING_URL = '{{ route("location.ping") }}';
+        const TOKEN    = '{{ $_trackToken }}';
+        const CSRF     = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+
+        let watchId   = null;
+        let pingTimer = null;
+        let lastCoords = null;
+
+        const bar = document.getElementById('tracking-status-bar');
+
+        function ping(coords) {
+            lastCoords = coords;
+            fetch(PING_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                body: JSON.stringify({ token: TOKEN, latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy }),
+            }).catch(() => {});
+        }
+
+        function start() {
+            if (!navigator.geolocation) return;
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                ping(pos.coords);
+                watchId = navigator.geolocation.watchPosition(function(p) { lastCoords = p.coords; }, null, { enableHighAccuracy: true, maximumAge: 30000 });
+                pingTimer = setInterval(function() { if (lastCoords) ping(lastCoords); }, 60000);
+                if (bar) { bar.style.display = 'flex'; }
+            }, null, { enableHighAccuracy: true, timeout: 15000 });
+        }
+
+        window._stopTracking = function() {
+            if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+            if (pingTimer !== null) { clearInterval(pingTimer); pingTimer = null; }
+            if (bar) bar.style.display = 'none';
+        };
+
+        // Start automatically
+        start();
+    })();
+    </script>
+    @endif
 </body>
 
 </html>

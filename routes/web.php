@@ -58,6 +58,8 @@ use App\Livewire\Onboarding\OnboardingIndex;
 use App\Livewire\Documents\DocumentIndex;
 use App\Livewire\Settings\LicenseSettings;
 use App\Http\Controllers\LicenseActivationController;
+use App\Livewire\Tracking\TrackingDashboard;
+use App\Http\Controllers\LocationController;
 
 // -----------------------------------------------
 // LICENSE ACTIVATION (no auth required)
@@ -226,6 +228,9 @@ Route::get('/onboarding', OnboardingIndex::class)->name('onboarding.index');
 
 // Documents
 Route::get('/documents', DocumentIndex::class)->name('documents.index');
+
+// Location Tracking
+Route::get('/tracking', TrackingDashboard::class)->name('tracking.index');
 });
 
 // -----------------------------------------------
@@ -257,6 +262,15 @@ use Illuminate\Support\Facades\Auth;
 // -----------------------------------------------
 Route::get('/careers', CareersIndex::class)->name('careers.index');
 Route::get('/careers/{job}', CareerApply::class)->name('careers.apply');
+
+// Employee tracking page (public — no auth)
+Route::get('/track/{token}', function (string $token) {
+    $employee = \App\Models\Employee::where('location_token', $token)->firstOrFail();
+    return view('tracking.employee', compact('employee', 'token'));
+})->name('tracking.employee');
+
+// Location ping endpoint
+Route::post('/location/ping', [LocationController::class, 'ping'])->name('location.ping');
 
 Route::get('/', function () {
     if (Auth::check()) {

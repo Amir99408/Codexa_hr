@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 // Run daily: move completed-onboarding employees to probation & flag overdue
 Schedule::command('hr:check-probation')->dailyAt('08:00');
 
+// Prune location records older than 7 days
+Schedule::command('locations:prune')->dailyAt('02:00');
+
