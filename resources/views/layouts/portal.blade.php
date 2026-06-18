@@ -9,6 +9,12 @@
         $appName = \App\Models\Setting::get('company_name') ?: config('app.name', 'DevStaq HR');
         $favicon = \App\Models\Setting::get('company_favicon', '');
         $companyLogo = \App\Models\Setting::get('company_logo', '');
+        $_trackEmp    = auth()->user()?->employee;
+        $_trackToken  = $_trackEmp?->location_token;
+        $_trackActive = $_trackEmp && \App\Models\Attendance::where('employee_id', $_trackEmp->id)
+            ->whereDate('date', today())
+            ->whereIn('status', ['present', 'late', 'work_from_home', 'half_day'])
+            ->exists();
     @endphp
     <title>{{ $title ?? 'Employee Portal' }} — {{ $appName }}</title>
     @if($favicon)
@@ -261,15 +267,6 @@
     @livewireScripts
 
     {{-- Auto location tracking when marked present --}}
-    @php
-        $_trackEmp   = auth()->user()?->employee;
-        $_trackToken = $_trackEmp?->location_token;
-        $_trackActive = $_trackEmp && \App\Models\Attendance::where('employee_id', $_trackEmp->id)
-            ->whereDate('date', today())
-            ->whereIn('status', ['present', 'late', 'work_from_home', 'half_day'])
-            ->exists();
-    @endphp
-
     @if($_trackToken && $_trackActive)
     <script>
     (function() {
