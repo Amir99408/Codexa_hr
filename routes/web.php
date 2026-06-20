@@ -49,6 +49,7 @@ use App\Livewire\Attendance\DeviceLogs;
 use App\Livewire\WarningLetters\WarningLetterIndex;
 use App\Livewire\WarningLetters\WarningLetterCreate;
 use App\Livewire\Portal\EmployeeWarnings;
+<<<<<<< Updated upstream
 use App\Livewire\Portal\EmployeeChangePassword;
 use App\Livewire\Portal\EmployeeUpdatePhoto;
 use App\Livewire\Careers\CareersIndex;
@@ -66,6 +67,11 @@ use App\Http\Controllers\LocationController;
 // -----------------------------------------------
 Route::get('/activate', [LicenseActivationController::class, 'show'])->name('license.activate');
 Route::post('/activate', [LicenseActivationController::class, 'activate'])->name('license.activate.submit');
+=======
+use App\Livewire\RoleManagement\RoleIndex;
+use App\Livewire\Onboarding\OnboardingIndex;
+use App\Livewire\Documents\DocumentIndex;
+>>>>>>> Stashed changes
 
 // -----------------------------------------------
 // ADMIN ROUTES
@@ -170,7 +176,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Settings (admin only)
     Route::middleware('permission:manage-settings')->group(function () {
         Route::get('/settings/company', CompanySettings::class)->name('settings.company');
+<<<<<<< Updated upstream
         Route::get('/settings/license', LicenseSettings::class)->name('settings.license');
+=======
+>>>>>>> Stashed changes
     });
     Route::get('/settings/profile', ProfileSettings::class)->name('settings.profile');
 
@@ -228,9 +237,12 @@ Route::get('/onboarding', OnboardingIndex::class)->name('onboarding.index');
 
 // Documents
 Route::get('/documents', DocumentIndex::class)->name('documents.index');
+<<<<<<< Updated upstream
 
 // Location Tracking
 Route::get('/tracking', TrackingDashboard::class)->name('tracking.index');
+=======
+>>>>>>> Stashed changes
 });
 
 // -----------------------------------------------

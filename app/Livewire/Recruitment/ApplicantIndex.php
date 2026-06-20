@@ -109,7 +109,69 @@ class ApplicantIndex extends Component
 
     public function confirmConvert(int $id): void
     {
+<<<<<<< Updated upstream
         $this->redirect(route('employees.create', ['applicant_id' => $id]));
+=======
+        $this->convertApplicantId = $id;
+        $this->showConvertModal   = true;
+    }
+
+    public function convertToEmployee(): void
+    {
+        $applicant = Applicant::findOrFail($this->convertApplicantId);
+
+        DB::transaction(function () use ($applicant) {
+            $lastEmp = Employee::latest('id')->first();
+            $next    = $lastEmp ? (intval(substr($lastEmp->emp_code, 4)) + 1) : 1;
+            $empCode = 'EMP-' . str_pad($next, 4, '0', STR_PAD_LEFT);
+
+            $employee = Employee::create([
+                'emp_code'          => $empCode,
+                'first_name'        => explode(' ', $applicant->name)[0],
+                'last_name'         => implode(' ', array_slice(explode(' ', $applicant->name), 1)) ?: '-',
+                'phone'             => $applicant->phone,
+                'join_date'         => today()->format('Y-m-d'),
+                'basic_salary'      => 0,
+                'status'            => 'active',
+                'onboarding_status' => 'onboarding',
+                'probation_end_date'=> today()->addMonths(3)->format('Y-m-d'),
+                'department_id'     => $this->job->department_id,
+                'designation'       => $this->job->title,
+            ]);
+
+            $defaultTasks = [
+                'Complete personal information form',
+                'Submit ID and address proof documents',
+                'Sign employment contract',
+                'Complete IT setup and equipment handover',
+                'Attend company orientation session',
+                'Meet department team and manager',
+                'Complete mandatory compliance training',
+                'Set up payroll bank account details',
+            ];
+
+            foreach ($defaultTasks as $i => $task) {
+                OnboardingTask::create([
+                    'employee_id' => $employee->id,
+                    'task'        => $task,
+                    'sort_order'  => $i + 1,
+                ]);
+            }
+
+            $applicant->update(['stage' => 'hired']);
+
+            AuditService::log(
+                action: 'created',
+                model: 'Employee',
+                description: "Converted applicant {$applicant->name} to employee ({$empCode}) — onboarding started",
+                modelId: $employee->id,
+            );
+
+            $this->message = "{$applicant->name} converted to employee. Onboarding checklist created!";
+        });
+
+        $this->reset(['showConvertModal', 'convertApplicantId']);
+>>>>>>> Stashed changes
     }
 
     public function render()

@@ -13,10 +13,16 @@ class DocumentIndex extends Component
 {
     use WithFileUploads, WithPagination;
 
+<<<<<<< Updated upstream
     public string $search      = '';
     public string $category   = '';
     public string $message    = '';
     public string $uploadError = '';
+=======
+    public string $search   = '';
+    public string $category = '';
+    public string $message  = '';
+>>>>>>> Stashed changes
 
     // Upload form
     public bool    $showUploadModal = false;
@@ -24,26 +30,39 @@ class DocumentIndex extends Component
     public string  $title    = '';
     public string  $docCategory = 'general';
     public ?string $expiryDate  = null;
+<<<<<<< Updated upstream
     public         $document = null;
+=======
+    public         $file = null;
+>>>>>>> Stashed changes
 
     public function updatingSearch(): void { $this->resetPage(); }
 
     public function openUpload(int $employeeId): void
     {
         $this->uploadEmployeeId = $employeeId;
+<<<<<<< Updated upstream
         $this->reset(['title', 'docCategory', 'expiryDate', 'document', 'uploadError']);
         $this->docCategory    = 'general';
+=======
+        $this->reset(['title', 'docCategory', 'expiryDate', 'file']);
+        $this->docCategory   = 'general';
+>>>>>>> Stashed changes
         $this->showUploadModal = true;
     }
 
     public function upload(): void
     {
+<<<<<<< Updated upstream
         $this->uploadError = '';
 
+=======
+>>>>>>> Stashed changes
         $this->validate([
             'title'       => 'required|string|max:150',
             'docCategory' => 'required|in:id,contract,certificate,general',
             'expiryDate'  => 'nullable|date',
+<<<<<<< Updated upstream
             'document'    => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
         ]);
 
@@ -65,6 +84,25 @@ class DocumentIndex extends Component
         } catch (\Exception $e) {
             $this->uploadError = 'Failed to save the file. Please check storage permissions and try again.';
         }
+=======
+            'file'        => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
+        ]);
+
+        $path     = $this->file->store("documents/{$this->uploadEmployeeId}", 'local');
+        $fileName = $this->file->getClientOriginalName();
+
+        EmployeeDocument::create([
+            'employee_id' => $this->uploadEmployeeId,
+            'title'       => $this->title,
+            'category'    => $this->docCategory,
+            'file_path'   => $path,
+            'file_name'   => $fileName,
+            'expiry_date' => $this->expiryDate ?: null,
+        ]);
+
+        $this->reset(['showUploadModal', 'uploadEmployeeId', 'title', 'docCategory', 'expiryDate', 'file']);
+        $this->message = 'Document uploaded successfully.';
+>>>>>>> Stashed changes
     }
 
     public function verify(int $docId): void
@@ -76,7 +114,11 @@ class DocumentIndex extends Component
     public function delete(int $docId): void
     {
         $doc = EmployeeDocument::findOrFail($docId);
+<<<<<<< Updated upstream
         Storage::disk('public')->delete($doc->file_path);
+=======
+        Storage::disk('local')->delete($doc->file_path);
+>>>>>>> Stashed changes
         $doc->delete();
         $this->message = 'Document deleted.';
     }
@@ -84,7 +126,11 @@ class DocumentIndex extends Component
     public function download(int $docId)
     {
         $doc = EmployeeDocument::findOrFail($docId);
+<<<<<<< Updated upstream
         return Storage::disk('public')->download($doc->file_path, $doc->file_name);
+=======
+        return Storage::disk('local')->download($doc->file_path, $doc->file_name);
+>>>>>>> Stashed changes
     }
 
     public function render()

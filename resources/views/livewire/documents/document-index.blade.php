@@ -143,6 +143,7 @@
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
                 <h3 class="text-base font-bold text-gray-900 mb-4">Upload Document</h3>
 
+<<<<<<< Updated upstream
                 {{-- Storage error --}}
                 @if($uploadError)
                     <div class="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium">
@@ -156,20 +157,34 @@
                         <input wire:model="title" type="text" placeholder="e.g. National ID Card"
                                class="w-full px-3 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent
                                {{ $errors->has('title') ? 'border-red-400 bg-red-50' : 'border-gray-200' }}"/>
+=======
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Title</label>
+                        <input wire:model="title" type="text" placeholder="e.g. National ID Card"
+                               class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+>>>>>>> Stashed changes
                         @error('title') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
+<<<<<<< Updated upstream
                         <label class="text-xs font-semibold text-gray-600 mb-1 block">Category <span class="text-red-400">*</span></label>
                         <select wire:model="docCategory"
                                 class="w-full px-3 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent
                                 {{ $errors->has('docCategory') ? 'border-red-400 bg-red-50' : 'border-gray-200' }}">
                             <option value="">— Select category —</option>
+=======
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Category</label>
+                        <select wire:model="docCategory"
+                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+>>>>>>> Stashed changes
                             <option value="id">ID Document</option>
                             <option value="contract">Contract</option>
                             <option value="certificate">Certificate</option>
                             <option value="general">General</option>
                         </select>
+<<<<<<< Updated upstream
                         @error('docCategory') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
 
@@ -192,11 +207,29 @@
                             </svg>
                             Processing file...
                         </div>
+=======
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Expiry Date (optional)</label>
+                        <input wire:model="expiryDate" type="date"
+                               class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+                        @error('expiryDate') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">File (PDF, JPG, PNG, DOC — max 10MB)</label>
+                        <input wire:model="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                               class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                        @error('file') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                        <div wire:loading wire:target="file" class="text-xs text-blue-500 mt-1">Uploading...</div>
+>>>>>>> Stashed changes
                     </div>
                 </div>
 
                 <div class="flex gap-3 mt-5">
                     <button wire:click="upload"
+<<<<<<< Updated upstream
                             wire:loading.attr="disabled"
                             wire:target="upload,document"
                             class="flex-1 py-2.5 bg-[#0f4c81] hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
@@ -211,6 +244,13 @@
                             wire:loading.attr="disabled"
                             wire:target="upload"
                             class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 disabled:opacity-60 text-gray-700 rounded-xl text-sm font-semibold transition-colors">
+=======
+                            class="flex-1 py-2.5 bg-[#0f4c81] hover:bg-blue-800 text-white rounded-xl text-sm font-semibold transition-colors">
+                        Upload
+                    </button>
+                    <button wire:click="$set('showUploadModal', false)"
+                            class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition-colors">
+>>>>>>> Stashed changes
                         Cancel
                     </button>
                 </div>

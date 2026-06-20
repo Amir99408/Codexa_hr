@@ -28,7 +28,10 @@ class Employee extends Model
         'photo',
         'onboarding_status',
         'probation_end_date',
+<<<<<<< Updated upstream
         'location_token',
+=======
+>>>>>>> Stashed changes
     ];
 
     protected static function booted(): void
@@ -88,9 +91,12 @@ public function documents()
 {
     return $this->hasMany(EmployeeDocument::class);
 }
+<<<<<<< Updated upstream
 
 public function locations()
 {
     return $this->hasMany(EmployeeLocation::class);
 }
+=======
+>>>>>>> Stashed changes
 }
